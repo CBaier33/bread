@@ -1,0 +1,25 @@
+build/bin
+node_modules
+frontend/dist
+
+# ====================
+# Go / Wails
+# ====================
+/build/
+/dist/
+/bin/
+/vendor/
+/wails.json.lock
+/wailsbuild/
+
+# ====================
+# Node / Frontend
+# ====================
+frontend/node_modules/
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/pnpm-lock.yaml
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.eslintcache
