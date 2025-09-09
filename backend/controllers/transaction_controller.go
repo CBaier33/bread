@@ -3,25 +3,43 @@ package controllers
 import (
 	"bread/backend/models"
 	"bread/backend/services"
-	"context"
 )
 
-type TransactionVM struct{
-	ctx context.Context
+type TransactionController struct {
+	service *services.TransactionService
 }
 
-func NewTransactionVM() *TransactionVM {
-    return &TransactionVM{}
+func NewTransactionController() *TransactionController {
+	return &TransactionController{
+		service: &services.TransactionService{},
+	}
 }
 
-// Exposed to frontend via Wails
-func (vm *TransactionVM) AddTransaction(desc string, amount float64, direction string, category string) (models.Transaction, error) {
-    return services.CreateTransaction(desc, amount, direction, category)
+func (c *TransactionController) AddTransaction(
+	desc string,
+	amount int64,
+	date string,
+	notes string,
+	budgetID int64,
+	groupID *int64,
+	categoryID *int64,
+) (models.Transaction, error) {
+	return c.service.CreateTransaction(desc, amount, date, notes, budgetID, groupID, categoryID)
 }
 
-func (vm *TransactionVM) GetTransactions() ([]models.Transaction, error) {
-    return services.ListTransactions()
+func (c *TransactionController) GetTransaction(id int64) (models.Transaction, error) {
+	return c.service.GetTransaction(id)
 }
 
+func (c *TransactionController) ListTransactions(categoryID *int64) ([]models.Transaction, error) {
+	return c.service.ListTransactions(categoryID)
+}
 
+func (c *TransactionController) UpdateTransaction(t models.Transaction) error {
+	return c.service.UpdateTransaction(t)
+}
+
+func (c *TransactionController) DeleteTransaction(id int64) error {
+	return c.service.DeleteTransaction(id)
+}
 

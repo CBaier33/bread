@@ -26,7 +26,7 @@ func main() {
         OnStartup:        app.Startup,
         Bind: []interface{}{
             app,
-						&controllers.TransactionVM{},
+						&controllers.TransactionController{},
         },
     })
 

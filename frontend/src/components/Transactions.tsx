@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { GetTransactions, AddTransaction } from "../../wailsjs/go/controllers/TransactionVM"
+import { ListTransactions, AddTransaction } from "../../wailsjs/go/controllers/TransactionController"
 import { models } from "../../wailsjs/go/models";
 
 const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<models.Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [budgetID, setBudgetID] = useState<number>(1);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
-  const [direction, setDirection] = useState("");
-  const [category, setCategory] = useState("");
+  const [date, setDate] = useState("2003-05-02");
+  const [notes, setNotes] = useState("");
 
   const loadTransactions = async () => {
     try {
-      const txs = await GetTransactions();
+      const txs = await ListTransactions(null);
       setTransactions(txs ?? []); // types now match
     } catch (err) {
       console.error("Error fetching transactions:", err);
@@ -27,8 +28,10 @@ const Transactions: React.FC = () => {
 
   const handleAdd = async () => {
     try {
-      await AddTransaction(description, amount, direction, category);
+      await AddTransaction(description, amount, date, notes, budgetID, null, null);
       setDescription("");
+      setDate("2003-05-02");
+      setNotes("")
       setAmount(0);
       loadTransactions();
     } catch (err) {
@@ -44,7 +47,7 @@ const Transactions: React.FC = () => {
       <ul>
         {transactions.map((tx) => (
           <li key={tx.id}>
-            {tx.description} - ${tx.amount} - ${tx.direction} - ${tx.category} - {tx.created_at}
+            {tx.description} - ${tx.amount} - ${tx.date} - ${tx.category_name} - {tx.created_at}
           </li>
         ))}
       </ul>
@@ -63,15 +66,15 @@ const Transactions: React.FC = () => {
         />
         <input
           type="text"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Direction"
-          value={direction}
-          onChange={(e) => setDirection(e.target.value)}
+          placeholder="Notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
         />
         <button onClick={handleAdd}>Add Transaction</button>
       </div>

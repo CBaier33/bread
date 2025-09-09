@@ -3,10 +3,16 @@ export namespace models {
 	export class Transaction {
 	    id: number;
 	    description: string;
+	    budget_id: number;
+	    group_id?: number;
+	    category_id?: number;
+	    category_name: string;
+	    date: string;
 	    amount: number;
-	    direction: string;
-	    category: string;
+	    tags: string;
+	    notes: string;
 	    created_at: string;
+	    updated_at: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Transaction(source);
@@ -16,10 +22,16 @@ export namespace models {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.description = source["description"];
+	        this.budget_id = source["budget_id"];
+	        this.group_id = source["group_id"];
+	        this.category_id = source["category_id"];
+	        this.category_name = source["category_name"];
+	        this.date = source["date"];
 	        this.amount = source["amount"];
-	        this.direction = source["direction"];
-	        this.category = source["category"];
+	        this.tags = source["tags"];
+	        this.notes = source["notes"];
 	        this.created_at = source["created_at"];
+	        this.updated_at = source["updated_at"];
 	    }
 	}
 
