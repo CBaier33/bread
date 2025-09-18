@@ -80,6 +80,8 @@ func TestPersistence(t *testing.T) {
 			GroupID:     &groupID,
 			Name:        "Food",
 			Description: "Food expenses",
+			Expected: 300,
+			Actual: 0,
 			CreatedAt:   currentTS,
 			UpdatedAt:   currentTS,
 		}

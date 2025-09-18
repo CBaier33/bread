@@ -7,13 +7,15 @@ import (
 	"time"
 )
 
-func CreateCategory(budgetID int64, groupID int64, name, description string) (models.Category, error) {
+func CreateCategory(budgetID int64, groupID int64, name, description string, expected int64, actual int64) (models.Category, error) {
 	now := time.Now().Format("2006-01-02 15:04:05")
 	c := models.Category{
 		BudgetID: budgetID,
 		GroupID:     &groupID,
 		Name:        name,
 		Description: description,
+		Expected:    expected,
+		Actual:      actual,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}

@@ -7,12 +7,14 @@ import (
 // InsertCategory inserts a new category into the database and returns its ID.
 func InsertCategory(c models.Category) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO categories(budget_id, group_id, name, description, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?)`,
+		INSERT INTO categories(budget_id, group_id, name, description, expected, actual, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		c.BudgetID,
 		c.GroupID,
 		c.Name,
 		c.Description,
+		c.Expected,
+		c.Actual,
 		c.CreatedAt,
 		c.UpdatedAt,
 	)

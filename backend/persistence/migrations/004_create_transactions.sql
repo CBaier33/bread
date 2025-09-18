@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     budget_id INTEGER NOT NULL,
     group_id INTEGER,
     category_id INTEGER,                      -- normalized FK
-    description TEXT NOT NULL,
+    description TEXT NOT NULL, -- effectively the name
     date TEXT NOT NULL,                       -- YYYY-MM-DD
     amount INTEGER NOT NULL,                  -- in cents
     tags TEXT,

@@ -10,6 +10,7 @@ const Transactions: React.FC = () => {
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState("2003-05-02");
   const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState("");
 
   const loadTransactions = async () => {
     try {
@@ -28,7 +29,7 @@ const Transactions: React.FC = () => {
 
   const handleAdd = async () => {
     try {
-      await AddTransaction(description, amount, date, notes, budgetID, null, null);
+      await AddTransaction(description, amount, date, notes, tags, budgetID, null, null);
       setDescription("");
       setDate("2003-05-02");
       setNotes("")

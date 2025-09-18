@@ -14,8 +14,8 @@ func NewCategoryController() *CategoryController {
 }
 
 // AddCategory creates a new category
-func (c *CategoryController) AddCategory(budgetID int64, groupID int64, name, description string) (models.Category, error) {
-	return services.CreateCategory(budgetID, groupID, name, description)
+func (c *CategoryController) AddCategory(budgetID int64, groupID int64, name, description string, expected int64, actual int64) (models.Category, error) {
+	return services.CreateCategory(budgetID, groupID, name, description, expected, actual)
 }
 
 // GetCategory retrieves a category by ID

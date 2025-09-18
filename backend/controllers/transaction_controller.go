@@ -20,11 +20,12 @@ func (c *TransactionController) AddTransaction(
 	amount int64,
 	date string,
 	notes string,
+	tags string,
 	budgetID int64,
 	groupID *int64,
 	categoryID *int64,
 ) (models.Transaction, error) {
-	return c.service.CreateTransaction(desc, amount, date, notes, budgetID, groupID, categoryID)
+	return c.service.CreateTransaction(desc, amount, date, notes, tags, budgetID, groupID, categoryID)
 }
 
 func (c *TransactionController) GetTransaction(id int64) (models.Transaction, error) {

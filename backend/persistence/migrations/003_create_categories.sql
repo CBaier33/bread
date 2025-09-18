@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS categories (
     group_id INTEGER,
     name TEXT NOT NULL,
     description TEXT,
+    expected INTEGER NOT NULL,
+    actual INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE,

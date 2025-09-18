@@ -1,0 +1,52 @@
+Table budgets {
+  id integer [primary key, increment]
+  name text [not null]
+  period_start text [not null] // YYYY-MM-DD
+  period_end text [not null] // YYYY-MM-DD
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Table groups {
+  id integer [primary key, increment]
+  budget_id integer [not null]
+  name text [not null]
+  description text
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Table categories {
+  id integer [primary key, increment]
+  budget_id integer [not null]
+  group_id integer
+  name text [not null]
+  expected integer [not null]
+  actual integer [not null]
+  description text
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Table transactions {
+  id integer [primary key, increment]
+  budget_id integer [not null]
+  group_id integer
+  category_id integer
+  description text [not null]
+  date text [not null]
+  amount integer [not null] // cents
+  tags text
+  notes text
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+  
+}
+
+Ref: budgets.id < groups.budget_id
+Ref: budgets.id < categories.budget_id
+Ref: budgets.id < transactions.budget_id
+
+Ref: groups.id < categories.group_id
+Ref: groups.id < transactions.group_id
+

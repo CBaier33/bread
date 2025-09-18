@@ -16,15 +16,17 @@ func InsertTransaction(t models.Transaction) (int64, error) {
             date,
             amount,
             notes,
+						tags,
             created_at,
             updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		t.Description,
 		t.BudgetID,
 		t.CategoryID,
 		t.Date,
 		t.Amount,
 		t.Notes,
+		t.Tags,
 		t.CreatedAt,
 		t.UpdatedAt,
 	)
@@ -47,6 +49,7 @@ func GetTransactions() ([]models.Transaction, error) {
 			t.date,
 			t.amount,
 			t.notes,
+			t.tags,
 			t.created_at,
 			t.updated_at
 		FROM transactions t
@@ -72,6 +75,7 @@ func GetTransactions() ([]models.Transaction, error) {
 			&t.Date,
 			&t.Amount,
 			&t.Notes,
+			&t.Tags,
 			&t.CreatedAt,
 			&t.UpdatedAt,
 		); err != nil {
@@ -93,7 +97,7 @@ func GetTransaction(id int64) (models.Transaction, error) {
 	var t models.Transaction
 	query := `
 		SELECT 
-			id, description, category_id, date, amount, notes, created_at, updated_at
+			id, description, category_id, date, amount, notes, tags, created_at, updated_at
 		FROM transactions
 		WHERE id = ?;
 	`
