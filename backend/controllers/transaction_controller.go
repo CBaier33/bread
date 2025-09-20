@@ -15,7 +15,7 @@ func NewTransactionController() *TransactionController {
 	}
 }
 
-func (c *TransactionController) AddTransaction(
+func (c *TransactionController) CreateTransaction(
 	desc string,
 	amount int64,
 	date string,

@@ -97,7 +97,7 @@ func GetTransaction(id int64) (models.Transaction, error) {
 	var t models.Transaction
 	query := `
 		SELECT 
-			id, description, category_id, date, amount, notes, tags, created_at, updated_at
+			id, description, budget_id, category_id, date, amount, notes, tags, created_at, updated_at
 		FROM transactions
 		WHERE id = ?;
 	`
@@ -110,6 +110,7 @@ func GetTransaction(id int64) (models.Transaction, error) {
 		&t.Date,
 		&t.Amount,
 		&t.Notes,
+		&t.Tags,
 		&t.CreatedAt,
 		&t.UpdatedAt,
 	); err != nil {
@@ -126,7 +127,7 @@ func UpdateTransaction(t models.Transaction) error {
 
 	_, err := DB.Exec(`
         UPDATE transactions
-        SET description = ?, budget_id = ? category_id = ?, date = ?, amount = ?, notes = ?, updated_at = ?
+        SET description = ?, budget_id = ?,  category_id = ?, date = ?, amount = ?, notes = ?, updated_at = ?
         WHERE id = ?`,
 		t.Description,
 		t.BudgetID,

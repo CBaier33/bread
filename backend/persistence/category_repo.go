@@ -27,7 +27,7 @@ func InsertCategory(c models.Category) (int64, error) {
 // GetCategory retrieves a category by ID.
 func GetCategory(id int64) (*models.Category, error) {
 	row := DB.QueryRow(`
-		SELECT id, budget_id, group_id, name, description, created_at, updated_at
+		SELECT id, budget_id, group_id, name, description, expected, actual, created_at, updated_at
 		FROM categories
 		WHERE id = ?`, id)
 
@@ -38,6 +38,8 @@ func GetCategory(id int64) (*models.Category, error) {
 		&c.GroupID,
 		&c.Name,
 		&c.Description,
+		&c.Expected,
+		&c.Actual,
 		&c.CreatedAt,
 		&c.UpdatedAt,
 	); err != nil {
@@ -80,10 +82,13 @@ func ListCategories() ([]models.Category, error) {
 func UpdateCategory(c models.Category) error {
 	_, err := DB.Exec(`
 		UPDATE categories
-		SET name = ?, description = ?, updated_at = ?
+		SET name = ?, description = ?, expected = ?, actual = ?, group_id = ?, updated_at = ?
 		WHERE id = ?`,
 		c.Name,
 		c.Description,
+		c.Expected,
+		c.Actual,
+		c.GroupID,
 		c.UpdatedAt,
 		c.ID,
 	)
