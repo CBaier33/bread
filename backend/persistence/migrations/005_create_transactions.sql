@@ -3,18 +3,16 @@
 
 CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    budget_id INTEGER NOT NULL,
-    group_id INTEGER,
-    category_id INTEGER,                      -- normalized FK
-    description TEXT NOT NULL, -- effectively the name
+    project_id INTEGER NOT NULL,
+    category_id INTEGER,
+    description TEXT NOT NULL, 
     date TEXT NOT NULL,                       -- YYYY-MM-DD
     amount INTEGER NOT NULL,                  -- in cents
-    tags TEXT,
+    expense_type BOOLEAN NOT NULL, -- True -> Withdrawl | False -> Deposit
     notes TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
-    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 

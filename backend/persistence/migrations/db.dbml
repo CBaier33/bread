@@ -1,52 +1,106 @@
-Table budgets {
+Table projects {
   id integer [primary key, increment]
   name text [not null]
-  period_start text [not null] // YYYY-MM-DD
-  period_end text [not null] // YYYY-MM-DD
+  description text [not null]
+  currency text [not null] // USD, EUR, etc.
   created_at text [not null, default: "datetime('now')"]
   updated_at text [not null, default: "datetime('now')"]
 }
 
 Table groups {
   id integer [primary key, increment]
-  budget_id integer [not null]
+  project_id integer [not null]
   name text [not null]
   description text
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-}
-
-Table categories {
-  id integer [primary key, increment]
-  budget_id integer [not null]
-  group_id integer
-  name text [not null]
-  expected integer [not null]
-  actual integer [not null]
-  description text
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-}
-
-Table transactions {
-  id integer [primary key, increment]
-  budget_id integer [not null]
-  group_id integer
-  category_id integer
-  description text [not null]
-  date text [not null]
-  amount integer [not null] // cents
-  tags text
-  notes text
   created_at text [not null, default: "datetime('now')"]
   updated_at text [not null, default: "datetime('now')"]
   
+  Indexes {
+    (project_id, name) [unique] // scoped uniqueness
+  }
 }
 
-Ref: budgets.id < groups.budget_id
-Ref: budgets.id < categories.budget_id
-Ref: budgets.id < transactions.budget_id
+Ref: projects.id < groups.project_id
+
+Table categories {
+  id integer [primary key, increment]
+  group_id integer [not null]
+  name text [not null]
+  description text
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+  
+  Indexes {
+    (group_id, name) [unique] // scoped uniqueness
+  }
+}
 
 Ref: groups.id < categories.group_id
-Ref: groups.id < transactions.group_id
+
+Table budgets {
+  id integer [primary key, increment]
+  project_id integer [not null]
+  name text [not null]
+  period_start text [not null] // YYYY-MM-DD
+  period_end text [not null]   // YYYY-MM-DD
+  expected_income integer [not null] // in cents
+  starting_balance integer [not null] // in cents
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Ref: projects.id < budgets.project_id
+
+Table budget_allocations {
+  id integer [primary key, increment]
+  budget_id integer [not null]
+  category_id integer [not null]
+  expected_cost integer [not null] // in cents
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+  
+  Indexes {
+    (budget_id, category_id) [unique]
+  }
+}
+
+Ref: budgets.id < budget_allocations.budget_id
+Ref: categories.id < budget_allocations.category_id
+
+Table transactions {
+  id integer [primary key, increment]
+  project_id integer [not null]
+  category_id integer
+  description text [not null]
+  date text [not null]                     // YYYY-MM-DD
+  amount integer [not null]                // in cents
+  expense_type boolean [not null]          // True -> Withdrawal, False -> Deposit
+  notes text
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Ref: projects.id < transactions.project_id
+Ref: categories.id < transactions.category_id
+
+Table tags {
+  id integer [primary key, increment]
+  name text [not null]
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+}
+
+Table transaction_tags {
+  transaction_id integer [not null]
+  tag_id integer [not null]
+  created_at text [not null, default: "datetime('now')"]
+  updated_at text [not null, default: "datetime('now')"]
+  
+  Indexes {
+    (transaction_id, tag_id) [unique]
+  }
+}
+
+Ref: transactions.id < transaction_tags.transaction_id
+Ref: tags.id < transaction_tags.tag_id
 
