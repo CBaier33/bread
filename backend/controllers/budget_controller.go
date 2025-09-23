@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"bread/backend/models"
 	"bread/backend/services"
 )
@@ -17,6 +18,8 @@ func NewBudgetController() *BudgetController {
 
 // AddBudget creates a new budget
 func (c *BudgetController) CreateBudget(name string, period_start string, period_end string) (models.Budget, error) {
+	fmt.Println("Budgets called")
+	fmt.Println(name, period_start, period_end)
 	return c.service.CreateBudget(name, period_start, period_end)
 }
 

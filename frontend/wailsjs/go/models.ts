@@ -1,5 +1,79 @@
 export namespace models {
 	
+	export class Budget {
+	    id: number;
+	    name: string;
+	    period_start: string;
+	    period_end: string;
+	    created_at: string;
+	    updated_at: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Budget(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.period_start = source["period_start"];
+	        this.period_end = source["period_end"];
+	        this.created_at = source["created_at"];
+	        this.updated_at = source["updated_at"];
+	    }
+	}
+	export class Category {
+	    id: number;
+	    budget_id: number;
+	    group_id?: number;
+	    name: string;
+	    description: string;
+	    is_deposit: boolean;
+	    expected: number;
+	    actual: number;
+	    created_at: string;
+	    updated_at: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Category(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.budget_id = source["budget_id"];
+	        this.group_id = source["group_id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.is_deposit = source["is_deposit"];
+	        this.expected = source["expected"];
+	        this.actual = source["actual"];
+	        this.created_at = source["created_at"];
+	        this.updated_at = source["updated_at"];
+	    }
+	}
+	export class Group {
+	    id: number;
+	    budget_id: number;
+	    name: string;
+	    description: string;
+	    created_at: string;
+	    updated_at: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Group(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.budget_id = source["budget_id"];
+	        this.name = source["name"];
+	        this.description = source["description"];
+	        this.created_at = source["created_at"];
+	        this.updated_at = source["updated_at"];
+	    }
+	}
 	export class Transaction {
 	    id: number;
 	    description: string;

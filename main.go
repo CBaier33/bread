@@ -27,6 +27,9 @@ func main() {
         Bind: []interface{}{
             app,
 						&controllers.TransactionController{},
+						&controllers.BudgetController{}, 
+						&controllers.GroupController{},
+						&controllers.CategoryController{},
         },
     })
 

@@ -1,0 +1,12 @@
+.PopoverContent {
+  width: var(--radix-popover-trigger-width); /* matches trigger */
+  max-width: 15rem;                          /* or override */
+  max-height: var(--radix-popover-content-available-height);
+  overflow: auto;                             /* scroll if too tall */
+}
+
+.DayPicker {
+  width: 100%;
+  table-layout: fixed; /* forces table to shrink inside constrained width */
+}
+
