@@ -7,9 +7,9 @@ import (
 // InsertGroup inserts a new group into the database and returns its ID.
 func InsertGroup(g models.Group) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO groups(budget_id, name, description, created_at, updated_at)
+		INSERT INTO groups(project_id, name, description, created_at, updated_at)
 		VALUES (?, ?, ?, ?, ?)`,
-		g.BudgetID,
+		g.ProjectID,
 		g.Name,
 		g.Description,
 		g.CreatedAt,
@@ -24,14 +24,14 @@ func InsertGroup(g models.Group) (int64, error) {
 // GetGroup retrieves a group by ID.
 func GetGroup(id int64) (*models.Group, error) {
 	row := DB.QueryRow(`
-		SELECT id, budget_id, name, description, created_at, updated_at
+		SELECT id, project_id, name, description, created_at, updated_at
 		FROM groups
 		WHERE id = ?`, id)
 
 	var g models.Group
 	if err := row.Scan(
 		&g.ID,
-		&g.BudgetID,
+		&g.ProjectID,
 		&g.Name,
 		&g.Description,
 		&g.CreatedAt,
@@ -45,7 +45,7 @@ func GetGroup(id int64) (*models.Group, error) {
 // ListGroups lists all groups.
 func ListGroups() ([]models.Group, error) {
 	rows, err := DB.Query(`
-		SELECT id, budget_id, name, description, created_at, updated_at
+		SELECT id, project_id, name, description, created_at, updated_at
 		FROM groups
 		ORDER BY id`)
 	if err != nil {
@@ -58,7 +58,7 @@ func ListGroups() ([]models.Group, error) {
 		var g models.Group
 		if err := rows.Scan(
 			&g.ID,
-			&g.BudgetID,
+			&g.ProjectID,
 			&g.Name,
 			&g.Description,
 			&g.CreatedAt,

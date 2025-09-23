@@ -1,13 +1,10 @@
 package models
 
-type Category struct {
+type Project struct {
 	ID          int64  `json:"id"`
-	GroupID     *int64 `json:"group_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	ExpenseType bool   `json:"expense_type"`
-	Expected    int64  `json:"expected"`
-	Actual      int64  `json:"actual"`
+	Currency    string `json:"currency"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }

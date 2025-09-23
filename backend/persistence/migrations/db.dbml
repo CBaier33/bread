@@ -27,6 +27,7 @@ Table categories {
   group_id integer [not null]
   name text [not null]
   description text
+  expense_type boolean [not null]          // True -> Withdrawal, False -> Deposit
   created_at text [not null, default: "datetime('now')"]
   updated_at text [not null, default: "datetime('now')"]
   
@@ -103,4 +104,3 @@ Table transaction_tags {
 
 Ref: transactions.id < transaction_tags.transaction_id
 Ref: tags.id < transaction_tags.tag_id
-

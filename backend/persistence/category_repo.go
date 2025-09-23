@@ -7,14 +7,12 @@ import (
 // InsertCategory inserts a new category into the database and returns its ID.
 func InsertCategory(c models.Category) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO categories(budget_id, group_id, name, description, expected, actual, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-		c.BudgetID,
+		INSERT INTO categories(group_id, name, description, expense_type, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?)`,
 		c.GroupID,
 		c.Name,
 		c.Description,
-		c.Expected,
-		c.Actual,
+		c.ExpenseType,
 		c.CreatedAt,
 		c.UpdatedAt,
 	)
@@ -27,19 +25,16 @@ func InsertCategory(c models.Category) (int64, error) {
 // GetCategory retrieves a category by ID.
 func GetCategory(id int64) (*models.Category, error) {
 	row := DB.QueryRow(`
-		SELECT id, budget_id, group_id, name, description, expected, actual, created_at, updated_at
+		SELECT id, group_id, name, description, expense_type, created_at, updated_at
 		FROM categories
 		WHERE id = ?`, id)
 
 	var c models.Category
 	if err := row.Scan(
 		&c.ID,
-		&c.BudgetID,
 		&c.GroupID,
 		&c.Name,
 		&c.Description,
-		&c.Expected,
-		&c.Actual,
 		&c.CreatedAt,
 		&c.UpdatedAt,
 	); err != nil {
@@ -51,7 +46,7 @@ func GetCategory(id int64) (*models.Category, error) {
 // ListCategories lists all categories.
 func ListCategories() ([]models.Category, error) {
 	rows, err := DB.Query(`
-		SELECT id, budget_id, group_id, name, description, created_at, updated_at
+		SELECT id, group_id, name, description, expense_type, created_at, updated_at
 		FROM categories
 		ORDER BY id`)
 	if err != nil {
@@ -64,7 +59,6 @@ func ListCategories() ([]models.Category, error) {
 		var c models.Category
 		if err := rows.Scan(
 			&c.ID,
-			&c.BudgetID,
 			&c.GroupID,
 			&c.Name,
 			&c.Description,
@@ -82,12 +76,10 @@ func ListCategories() ([]models.Category, error) {
 func UpdateCategory(c models.Category) error {
 	_, err := DB.Exec(`
 		UPDATE categories
-		SET name = ?, description = ?, expected = ?, actual = ?, group_id = ?, updated_at = ?
+		SET name = ?, description = ?, group_id = ?, updated_at = ?
 		WHERE id = ?`,
 		c.Name,
 		c.Description,
-		c.Expected,
-		c.Actual,
 		c.GroupID,
 		c.UpdatedAt,
 		c.ID,
@@ -100,4 +92,3 @@ func DeleteCategory(id int64) error {
 	_, err := DB.Exec(`DELETE FROM categories WHERE id = ?`, id)
 	return err
 }
-

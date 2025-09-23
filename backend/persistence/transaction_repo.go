@@ -11,22 +11,22 @@ func InsertTransaction(t models.Transaction) (int64, error) {
 	res, err := DB.Exec(`
         INSERT INTO transactions(
             description,
-						budget_id,
+						project_id,
             category_id,
             date,
             amount,
             notes,
-						tags,
+						expense_type,
             created_at,
             updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		t.Description,
-		t.BudgetID,
+		t.ProjectID,
 		t.CategoryID,
 		t.Date,
 		t.Amount,
+		t.ExpenseType,
 		t.Notes,
-		t.Tags,
 		t.CreatedAt,
 		t.UpdatedAt,
 	)
@@ -38,23 +38,11 @@ func InsertTransaction(t models.Transaction) (int64, error) {
 }
 
 // GetTransactions returns all transactions
-func GetTransactions() ([]models.Transaction, error) {
+func ListTransactions() ([]models.Transaction, error) {
 	query := `
-		SELECT 
-			t.id,
-			t.description,
-	    t.budget_id,
-			t.category_id,
-			COALESCE(c.name, '') AS category_name,
-			t.date,
-			t.amount,
-			t.notes,
-			t.tags,
-			t.created_at,
-			t.updated_at
-		FROM transactions t
-		LEFT JOIN categories c ON t.category_id = c.id
-		ORDER BY t.created_at DESC;
+		SELECT id, description, project_id, category_id, date, amount, expense_type, notes, created_at, updated_at
+		FROM transactions
+		ORDER BY created_at DESC;
     `
 
 	rows, err := DB.Query(query)
@@ -69,13 +57,12 @@ func GetTransactions() ([]models.Transaction, error) {
 		if err := rows.Scan(
 			&t.ID,
 			&t.Description,
-			&t.BudgetID,
+			&t.ProjectID,
 			&t.CategoryID,
-			&t.CategoryName, // <- populated from join
 			&t.Date,
 			&t.Amount,
+			&t.ExpenseType,
 			&t.Notes,
-			&t.Tags,
 			&t.CreatedAt,
 			&t.UpdatedAt,
 		); err != nil {
@@ -97,7 +84,7 @@ func GetTransaction(id int64) (models.Transaction, error) {
 	var t models.Transaction
 	query := `
 		SELECT 
-			id, description, budget_id, category_id, date, amount, notes, tags, created_at, updated_at
+			id, description, project_id, category_id, date, amount, expense_type, notes, created_at, updated_at
 		FROM transactions
 		WHERE id = ?;
 	`
@@ -105,12 +92,12 @@ func GetTransaction(id int64) (models.Transaction, error) {
 	if err := row.Scan(
 		&t.ID,
 		&t.Description,
-		&t.BudgetID,
+		&t.ProjectID,
 		&t.CategoryID,
 		&t.Date,
 		&t.Amount,
+		&t.ExpenseType,
 		&t.Notes,
-		&t.Tags,
 		&t.CreatedAt,
 		&t.UpdatedAt,
 	); err != nil {
@@ -127,13 +114,14 @@ func UpdateTransaction(t models.Transaction) error {
 
 	_, err := DB.Exec(`
         UPDATE transactions
-        SET description = ?, budget_id = ?,  category_id = ?, date = ?, amount = ?, notes = ?, updated_at = ?
+        SET description = ?, project_id = ?,  category_id = ?, date = ?, amount = ?, expense_type = ?, notes = ?, updated_at = ?
         WHERE id = ?`,
 		t.Description,
-		t.BudgetID,
+		t.ProjectID,
 		t.CategoryID,
 		t.Date,
 		t.Amount,
+		t.ExpenseType,
 		t.Notes,
 		t.UpdatedAt,
 		t.ID,

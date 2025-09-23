@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS transaction_tags (
     transaction_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
     UNIQUE (transaction_id, tag_id)
