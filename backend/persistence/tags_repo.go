@@ -4,14 +4,13 @@ import (
 	"bread/backend/models"
 )
 
-// InsertTag inserts a new group into the database and returns its ID.
+// InsertTag inserts a new tag into the database and returns its ID.
 func InsertTag(g models.Tag) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO tags(name, created_at, updated_at)
-		VALUES (?, ?, ?)`,
+		INSERT INTO tags(project_id, name)
+		VALUES (?, ?)`,
+		g.ProjectID,
 		g.Name,
-		g.CreatedAt,
-		g.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -19,19 +18,18 @@ func InsertTag(g models.Tag) (int64, error) {
 	return res.LastInsertId()
 }
 
-// GetTag retrieves a group by ID.
+// GetTag retrieves a tag by ID.
 func GetTag(id int64) (*models.Tag, error) {
 	row := DB.QueryRow(`
-		SELECT id, name, created_at, updated_at
+		SELECT id, project_id, name 
 		FROM tags
 		WHERE id = ?`, id)
 
 	var g models.Tag
 	if err := row.Scan(
 		&g.ID,
+		&g.ProjectID,
 		&g.Name,
-		&g.CreatedAt,
-		&g.UpdatedAt,
 	); err != nil {
 		return nil, err
 	}
@@ -41,7 +39,7 @@ func GetTag(id int64) (*models.Tag, error) {
 // ListTags lists all tags.
 func ListTags() ([]models.Tag, error) {
 	rows, err := DB.Query(`
-		SELECT id, name, created_at, updated_at
+		SELECT id, project_id, name, created_at, updated_at
 		FROM tags
 		ORDER BY id`)
 	if err != nil {
@@ -54,6 +52,7 @@ func ListTags() ([]models.Tag, error) {
 		var g models.Tag
 		if err := rows.Scan(
 			&g.ID,
+			&g.ProjectID,
 			&g.Name,
 			&g.CreatedAt,
 			&g.UpdatedAt,
@@ -65,45 +64,41 @@ func ListTags() ([]models.Tag, error) {
 	return tags, nil
 }
 
-// UpdateTag updates a group.
+// UpdateTag updates a tag.
 func UpdateTag(g models.Tag) error {
 	_, err := DB.Exec(`
 		UPDATE tags
-		SET name = ?, updated_at = ?
+		SET project_id = ?, name = ?, updated_at = (datetime('now'))
 		WHERE id = ?`,
+		g.ProjectID,
 		g.Name,
-		g.UpdatedAt,
 		g.ID,
 	)
 	return err
 }
 
-// DeleteTag deletes a group.
+// DeleteTag deletes a tag.
 func DeleteTag(id int64) error {
 	_, err := DB.Exec(`DELETE FROM tags WHERE id = ?`, id)
 	return err
 }
 
-// InsertTransactionTag inserts a new group into the database and returns its ID.
-func InsertTransactionTag(g models.TransactionTag) (int64, error) {
-	res, err := DB.Exec(`
-		INSERT INTO transaction_tag(transaction_id, tag_id, created_at)
-		VALUES (?, ?, ?)`,
+// InsertTransactionTag inserts a new tag into the database and returns its ID.
+func InsertTransactionTag(g models.TransactionTag) (error) {
+	_, err := DB.Exec(`
+		INSERT INTO transaction_tags(transaction_id, tag_id)
+		VALUES (?, ?)`,
 		g.TransactionID,
 		g.TagID,
-		g.CreatedAt,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return res.LastInsertId()
+	return err
 }
 
-// GetTransactionTag retrieves a group by ID.
+// GetTransactionTag retrieves a tag by ID.
 func GetTransactionTag(transaction_id int64, tag_id int64) (*models.TransactionTag, error) {
 	row := DB.QueryRow(`
 		SELECT created_at
-		FROM transaction_tag
+		FROM transaction_tags
 		WHERE transaction_id = ? and tag_id = ?`, transaction_id, tag_id)
 
 	var g models.TransactionTag
@@ -115,8 +110,8 @@ func GetTransactionTag(transaction_id int64, tag_id int64) (*models.TransactionT
 	return &g, nil
 }
 
-// DeleteTransactionTag deletes a group.
+// DeleteTransactionTag deletes a tag.
 func DeleteTransactionTag(transaction_id int64, tag_id int64) error {
-	_, err := DB.Exec(`DELETE FROM transaction_tag WHERE transaction_id = ? and tag_id = ?`, transaction_id, tag_id)
+	_, err := DB.Exec(`DELETE FROM transaction_tags WHERE transaction_id = ? and tag_id = ?`, transaction_id, tag_id)
 	return err
 }

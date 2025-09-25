@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL CHECK(name <> ''),
     description TEXT,
     expense_type BOOLEAN NOT NULL, -- True -> Withdrawl | False -> Deposit
     created_at TEXT NOT NULL DEFAULT (datetime('now')),

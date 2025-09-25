@@ -7,13 +7,11 @@ import (
 // InsertProject inserts a new project and returns its ID
 func InsertProject(b models.Project) (int64, error) {
 	res, err := DB.Exec(`
-        INSERT INTO projects(name, description, currency, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)`,
+        INSERT INTO projects(name, description, currency)
+        VALUES (?, ?, ?)`,
 		b.Name,
 		b.Description,
 		b.Currency,
-		b.CreatedAt,
-		b.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -78,12 +76,11 @@ func ListProjects() ([]models.Project, error) {
 func UpdateProject(b models.Project) error {
 	_, err := DB.Exec(`
         UPDATE projects
-        SET name = ?, description = ?, currency = ?, updated_at = ?
+        SET name = ?, description = ?, currency = ?, updated_at = (datetime('now'))
         WHERE id = ?`,
 		b.Name,
 		b.Description,
 		b.Currency,
-		b.UpdatedAt,
 		b.ID,
 	)
 	return err

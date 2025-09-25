@@ -4,6 +4,7 @@ import (
 	"bread/backend/models"
 	"testing"
 	"time"
+	"fmt"
 )
 
 func TestBudgetPersistence(t *testing.T) {
@@ -19,6 +20,14 @@ func TestBudgetPersistence(t *testing.T) {
 	if err != nil {
 		t.Fatalf("InsertProject failed: %v", err)
 	}
+
+	p1, err := GetProject(p)
+	if err != nil {
+		t.Fatalf("InsertProject failed: %v", err)
+	}
+
+	fmt.Printf("Currency: %s", p1.Currency)
+
 
 	g, err := InsertGroup(models.Group{
 		ProjectID: p,

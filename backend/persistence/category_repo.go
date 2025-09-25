@@ -7,14 +7,12 @@ import (
 // InsertCategory inserts a new category into the database and returns its ID.
 func InsertCategory(c models.Category) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO categories(group_id, name, description, expense_type, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?)`,
+		INSERT INTO categories(group_id, name, description, expense_type)
+		VALUES (?, ?, ?, ?)`,
 		c.GroupID,
 		c.Name,
 		c.Description,
 		c.ExpenseType,
-		c.CreatedAt,
-		c.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -23,7 +21,7 @@ func InsertCategory(c models.Category) (int64, error) {
 }
 
 // GetCategory retrieves a category by ID.
-func GetCategory(id int64) (*models.Category, error) {
+func GetCategory(id int64) (models.Category, error) {
 	row := DB.QueryRow(`
 		SELECT id, group_id, name, description, expense_type, created_at, updated_at
 		FROM categories
@@ -35,12 +33,13 @@ func GetCategory(id int64) (*models.Category, error) {
 		&c.GroupID,
 		&c.Name,
 		&c.Description,
+		&c.ExpenseType,
 		&c.CreatedAt,
 		&c.UpdatedAt,
 	); err != nil {
-		return nil, err
+		return c, err
 	}
-	return &c, nil
+	return c, nil
 }
 
 // ListCategories lists all categories.
@@ -62,6 +61,7 @@ func ListCategories() ([]models.Category, error) {
 			&c.GroupID,
 			&c.Name,
 			&c.Description,
+			&c.ExpenseType,
 			&c.CreatedAt,
 			&c.UpdatedAt,
 		); err != nil {
@@ -76,12 +76,12 @@ func ListCategories() ([]models.Category, error) {
 func UpdateCategory(c models.Category) error {
 	_, err := DB.Exec(`
 		UPDATE categories
-		SET name = ?, description = ?, group_id = ?, updated_at = ?
+		SET group_id = ?, name = ?, description = ?, expense_type = ?, updated_at = (datetime('now'))
 		WHERE id = ?`,
+		c.GroupID,
 		c.Name,
 		c.Description,
-		c.GroupID,
-		c.UpdatedAt,
+		c.ExpenseType,
 		c.ID,
 	)
 	return err

@@ -9,16 +9,14 @@ import (
 // InsertBudget inserts a new budget and returns its ID
 func InsertBudget(b models.Budget) (int64, error) {
 	res, err := DB.Exec(`
-        INSERT INTO budgets(project_id, name, period_start, period_end, expected_income, starting_balance, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        INSERT INTO budgets(project_id, name, period_start, period_end, expected_income, starting_balance)
+        VALUES (?, ?, ?, ?, ?, ?)`,
 		b.ProjectID,
 		b.Name,
 		b.PeriodStart,
 		b.PeriodEnd,
 		b.ExpectedIncome,
 		b.StartingBalance,
-		b.CreatedAt,
-		b.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -89,7 +87,7 @@ func ListBudgets() ([]models.Budget, error) {
 func UpdateBudget(b models.Budget) error {
 	_, err := DB.Exec(`
         UPDATE budgets
-        SET project_id = ?, name = ?, period_start = ?, period_end = ?, expected_income = ?, starting_balance = ?, updated_at = ?
+        SET project_id = ?, name = ?, period_start = ?, period_end = ?, expected_income = ?, starting_balance = ?, updated_at = (datetime('now'))
         WHERE id = ?`,
 		b.ProjectID,
 		b.Name,
@@ -97,7 +95,6 @@ func UpdateBudget(b models.Budget) error {
 		b.PeriodEnd,
 		b.ExpectedIncome,
 		b.StartingBalance,
-		b.UpdatedAt,
 		b.ID,
 	)
 	return err
@@ -113,13 +110,11 @@ func DeleteBudget(id int64) error {
 
 func InsertAllocation(b models.BudgetAllocation) (int64, error) {
 	res, err := DB.Exec(`
-        INSERT INTO budget_allocations(budget_id, category_id, expected_cost, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)`,
+        INSERT INTO budget_allocations(budget_id, category_id, expected_cost)
+        VALUES (?, ?, ?)`,
 		b.BudgetID,
 		b.CategoryID,
 		b.ExpectedCost,
-		b.CreatedAt,
-		b.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -181,12 +176,11 @@ func ListAllocations() ([]models.BudgetAllocation, error) {
 func UpdateAllocation(b models.BudgetAllocation) error {
 	_, err := DB.Exec(`
         UPDATE budget_allocations
-        SET budget_id = ?, category_id = ?, expected_cost = ?, updated_at = ?
+        SET budget_id = ?, category_id = ?, expected_cost = ?, updated_at = (datetime('now'))
         WHERE id = ?`,
 		b.BudgetID,
 		b.CategoryID,
 		b.ExpectedCost,
-		b.UpdatedAt,
 		b.ID,
 	)
 	return err

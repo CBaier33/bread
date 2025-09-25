@@ -6,8 +6,6 @@ type Category struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	ExpenseType bool   `json:"expense_type"`
-	Expected    int64  `json:"expected"`
-	Actual      int64  `json:"actual"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }

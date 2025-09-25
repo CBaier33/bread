@@ -9,17 +9,8 @@ import (
 // InsertTransaction inserts a new transaction and returns its ID
 func InsertTransaction(t models.Transaction) (int64, error) {
 	res, err := DB.Exec(`
-        INSERT INTO transactions(
-            description,
-						project_id,
-            category_id,
-            date,
-            amount,
-            notes,
-						expense_type,
-            created_at,
-            updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        INSERT INTO transactions( description, project_id, category_id, date, amount, expense_type, notes) 
+				VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		t.Description,
 		t.ProjectID,
 		t.CategoryID,
@@ -27,8 +18,6 @@ func InsertTransaction(t models.Transaction) (int64, error) {
 		t.Amount,
 		t.ExpenseType,
 		t.Notes,
-		t.CreatedAt,
-		t.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -114,7 +103,7 @@ func UpdateTransaction(t models.Transaction) error {
 
 	_, err := DB.Exec(`
         UPDATE transactions
-        SET description = ?, project_id = ?,  category_id = ?, date = ?, amount = ?, expense_type = ?, notes = ?, updated_at = ?
+        SET description = ?, project_id = ?,  category_id = ?, date = ?, amount = ?, expense_type = ?, notes = ?, updated_at = (datetime('now'))
         WHERE id = ?`,
 		t.Description,
 		t.ProjectID,
@@ -123,7 +112,6 @@ func UpdateTransaction(t models.Transaction) error {
 		t.Amount,
 		t.ExpenseType,
 		t.Notes,
-		t.UpdatedAt,
 		t.ID,
 	)
 	return err

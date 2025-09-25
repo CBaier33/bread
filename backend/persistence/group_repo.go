@@ -7,13 +7,11 @@ import (
 // InsertGroup inserts a new group into the database and returns its ID.
 func InsertGroup(g models.Group) (int64, error) {
 	res, err := DB.Exec(`
-		INSERT INTO groups(project_id, name, description, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?)`,
+		INSERT INTO groups(project_id, name, description)
+		VALUES (?, ?, ?)`,
 		g.ProjectID,
 		g.Name,
 		g.Description,
-		g.CreatedAt,
-		g.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -22,7 +20,7 @@ func InsertGroup(g models.Group) (int64, error) {
 }
 
 // GetGroup retrieves a group by ID.
-func GetGroup(id int64) (*models.Group, error) {
+func GetGroup(id int64) (models.Group, error) {
 	row := DB.QueryRow(`
 		SELECT id, project_id, name, description, created_at, updated_at
 		FROM groups
@@ -37,9 +35,9 @@ func GetGroup(id int64) (*models.Group, error) {
 		&g.CreatedAt,
 		&g.UpdatedAt,
 	); err != nil {
-		return nil, err
+		return g, err
 	}
-	return &g, nil
+	return g, nil
 }
 
 // ListGroups lists all groups.
@@ -75,11 +73,10 @@ func ListGroups() ([]models.Group, error) {
 func UpdateGroup(g models.Group) error {
 	_, err := DB.Exec(`
 		UPDATE groups
-		SET name = ?, description = ?, updated_at = ?
+		SET name = ?, description = ?, updated_at = (datetime('now'))
 		WHERE id = ?`,
 		g.Name,
 		g.Description,
-		g.UpdatedAt,
 		g.ID,
 	)
 	return err
