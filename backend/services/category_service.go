@@ -4,25 +4,19 @@ import (
 	"bread/backend/models"
 	"bread/backend/persistence"
 	"fmt"
-	"time"
 )
 
 type CategoryService struct{}
 
-func (s *CategoryService) CreateCategory(budgetID int64, groupID int64, name, description string, expected int64, actual int64) (models.Category, error) {
-	now := time.Now().Format("2006-01-02 15:04:05")
+func (s *CategoryService) CreateCategory(groupID int64, name, description string, expenseType bool) (models.Category, error) {
 	c := models.Category{
-		BudgetID: budgetID,
 		GroupID:     &groupID,
 		Name:        name,
 		Description: description,
-		Expected:    expected,
-		Actual:      actual,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ExpenseType: expenseType,
 	}
 
-	id, err := persistence.InsertCategory(c)
+	id, err := persistence.InsertCategory(c, nil)
 	if err != nil {
 		return c, fmt.Errorf("CreateCategory: %w", err)
 	}
@@ -31,25 +25,22 @@ func (s *CategoryService) CreateCategory(budgetID int64, groupID int64, name, de
 }
 
 func (s *CategoryService) GetCategoryByID(id int64) (models.Category, error) {
-	c, err := persistence.GetCategory(id)
+	c, err := persistence.GetCategory(id, nil)
 	if err != nil {
 		return models.Category{}, fmt.Errorf("GetCategoryByID: %w", err)
 	}
-	return *c, nil
+	return c, nil
 }
 
-func (s *CategoryService) ListCategories() ([]models.Category, error) {
-	return persistence.ListCategories()
+func (s *CategoryService) ListCategories(groupID int64) ([]models.Category, error) {
+	return persistence.ListCategories(groupID, nil)
 }
 
 func (s *CategoryService) UpdateCategory(c models.Category) error {
-	if c.UpdatedAt == "" {
-		c.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-	}
-	return persistence.UpdateCategory(c)
+	return persistence.UpdateCategory(c, nil)
 }
 
 func (s *CategoryService) DeleteCategory(id int64) error {
-	return persistence.DeleteCategory(id)
+	return persistence.DeleteCategory(id, nil)
 }
 

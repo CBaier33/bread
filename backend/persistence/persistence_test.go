@@ -3,180 +3,533 @@ package persistence
 import (
 	"bread/backend/models"
 	"testing"
-	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestPersistence(t *testing.T) {
+func TestPersistenceBasic(t *testing.T) {
 	db := SetupTestDB(t)
-	defer db.Close()
 	DB = db
 
-	currentTS := time.Now().Format("2006-01-02 15:04:05")
+	// --- Project ---
+	projectModel := models.Project{
+		Name:        "Test Project",
+		Description: "CRUD test",
+		Currency:    "USD",
+	}
 
-	var budgetID, groupID, categoryID int64
+	project_id, err := InsertProject(projectModel, nil)
 
-	t.Run("Budget Test", func(t *testing.T) {
-		b := models.Budget{
-			Name:        "September Budget",
-			PeriodStart: "2025-09-01",
-			PeriodEnd:   "2025-09-30",
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
-		var err error
-		budgetID, err = InsertBudget(b)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("Created budget ID=%d", budgetID)
+	if err != nil {
+		t.Fatalf("InsertProject failed: %v", err)
+	}
+	if project_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
 
-		got, err := GetBudget(budgetID)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got.Name != b.Name {
-			t.Fatalf("expected %s, got %s", b.Name, got.Name)
-		}
-		t.Logf("Retrieved budget successfully")
+	project1, err := GetProject(project_id, nil)
+	if err != nil {
+		t.Fatalf("InsertProject failed: %v", err)
+	}
 
-		b.Name = "Updated Budget"
-		b.ID = budgetID
-		if err := UpdateBudget(b); err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("Updated budget successfully")
-	})
+	project1Desc := project1.Description
 
-	t.Run("Group Test", func(t *testing.T) {
-		g := models.Group{
-			BudgetID:    budgetID,
-			Name:        "Test Group",
-			Description: "Group description",
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
-		var err error
-		groupID, err = InsertGroup(g)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("Created group ID=%d", groupID)
+	project1.Description = "New Description"
 
-		got, err := GetGroup(groupID)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got.Name != g.Name {
-			t.Fatalf("expected %s, got %s", g.Name, got.Name)
-		}
-		t.Logf("Retrieved group successfully")
-	})
+	err = UpdateProject(project1, nil)
 
-	t.Run("Category Test", func(t *testing.T) {
-		c := models.Category{
-			BudgetID:    budgetID,
-			GroupID:     &groupID,
-			Name:        "Food",
-			Description: "Food expenses",
-			Expected: 300,
-			Actual: 0,
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
-		var err error
-		categoryID, err = InsertCategory(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Logf("Created category ID=%d", categoryID)
+	if err != nil {
+		t.Fatalf("UpdateProject failed: %v", err)
 
-		got, err := GetCategory(categoryID)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got.Name != c.Name {
-			t.Fatalf("expected %s, got %s", c.Name, got.Name)
-		}
-		t.Logf("Retrieved category successfully")
-	})
+	}
 
-	t.Run("Transaction Test", func(t *testing.T) {
-		// Transaction WITH category
-		txWithCat := models.Transaction{
-			Description: "Lunch",
-			BudgetID:    budgetID,
-			GroupID:     &groupID,
-			CategoryID:  &categoryID,
-			Date:        currentTS[:10],
-			Amount:      12345,
-			Notes:       "Sushi",
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
-		id1, err := InsertTransaction(txWithCat)
-		if err != nil {
-			t.Fatalf("InsertTransaction with category failed: %v", err)
-		}
-		t.Logf("Inserted transaction with category ID=%d", id1)
+	project1, err = GetProject(project1.ID, nil)
+	if err != nil {
+		t.Fatalf("GetProject failed: %v", err)
+	}
 
-		// Transaction WITHOUT category OR group
-		txNoCat := models.Transaction{
-			Description: "Cash deposit",
-			BudgetID:    budgetID,
-			GroupID:     nil,
-			CategoryID:  nil,
-			Date:        currentTS[:10],
-			Amount:      5000,
-			Notes:       "ATM deposit",
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
-		id2, err := InsertTransaction(txNoCat)
-		if err != nil {
-			t.Fatalf("InsertTransaction without category failed: %v", err)
-		}
-		t.Logf("Inserted transaction without category ID=%d", id2)
+	if project1.Description == project1Desc {
+		t.Errorf("Description remains unchanged.")
+	}
 
-		// Transaction WITHOUT category OR group
-		txNoGRP := models.Transaction{
-			Description: "Bitcoin deposit",
-			BudgetID:    budgetID,
-			GroupID:     &groupID,
-			CategoryID:  nil,
-			Date:        currentTS[:10],
-			Amount:      5012,
-			Notes:       "BTC deposit",
-			CreatedAt:   currentTS,
-			UpdatedAt:   currentTS,
-		}
+	
+	project_id2, err := InsertProject(projectModel, nil)
 
-		id3, err := InsertTransaction(txNoGRP)
-		if err != nil {
-			t.Fatalf("InsertTransaction without category failed: %v", err)
-		}
-		t.Logf("Inserted transaction without category ID=%d", id3)
-		// Retrieve transactions
-		txns, err := GetTransactions()
-		if err != nil {
-			t.Fatalf("GetTransactions failed: %v", err)
-		}
-		if len(txns) != 3 {
-			t.Fatalf("Expected 2 transactions, got %d", len(txns))
-		}
-		t.Logf("Retrieved %d transactions", len(txns))
+	project2, err := GetProject(project_id2, nil)
+	if err != nil {
+		t.Fatalf("GetProject failed: %v", err)
 
-		// Delete transactions
-		_, err = DB.Exec("DELETE FROM transactions")
-		if err != nil {
-			t.Fatalf("Failed to delete transactions: %v", err)
-		}
-		txns, _ = GetTransactions()
-		if len(txns) != 0 {
-			t.Fatalf("Expected 0 transactions after delete, got %d", len(txns))
-		}
-		t.Logf("Transactions deleted successfully: %d & %d", id1, id2)
-	})
+	}
+
+	projects, err := ListProjects(nil)
+
+	if err != nil {
+		t.Fatalf("ListProjects failed: %v", err)
+	}
+	if len(projects) != 2 {
+		t.Errorf("expected 2 projects, got %d", len(projects))
+	}
+
+	err = DeleteProject(project2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteProject failed: %v", err)
+	}
+
+	projects, err = ListProjects(nil);
+
+	if err != nil {
+		t.Fatalf("ListProjects failed: %v", err)
+	}
+	if len(projects) != 1 {
+		t.Errorf("expected 1 projects, got %d", len(projects))
+	}
+
+	// --- Budget ---
+
+	budgetModel := models.Budget{
+		ProjectID:   project1.ID,
+		Name:        "Test Budget",
+		PeriodStart: "2025-09-01",
+		PeriodEnd:   "2025-09-31",
+		ExpectedIncome: 5200,
+		StartingBalance: 100,
+	}
+
+	budget_id, err := InsertBudget(budgetModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertBudget failed: %v", err)
+	}
+	if budget_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
+
+	budget1, err := GetBudget(budget_id, nil)
+	if err != nil {
+		t.Fatalf("InsertBudget failed: %v", err)
+	}
+
+	budget1Name := budget1.Name
+
+	budget1.Name = "New Name"
+
+	err = UpdateBudget(budget1, nil)
+
+	if err != nil {
+		t.Fatalf("UpdateBudget failed: %v", err)
+
+	}
+
+	budget1, err = GetBudget(budget1.ID, nil)
+	if err != nil {
+		t.Fatalf("GetBudget failed: %v", err)
+	}
+
+	if budget1.Name == budget1Name {
+		t.Errorf("Description remains unchanged.")
+	}
+
+	
+	budget_id2, err := InsertBudget(budgetModel, nil)
+
+	budget2, err := GetBudget(budget_id2, nil)
+	if err != nil {
+		t.Fatalf("GetBudget failed: %v", err)
+
+	}
+
+	budgets, err := ListBudgets(project1.ID, nil)
+
+	if err != nil {
+		t.Fatalf("ListBudgets failed: %v", err)
+	}
+	if len(budgets) != 2 {
+		t.Errorf("expected 2 budgets, got %d", len(budgets))
+	}
+
+	err = DeleteBudget(budget2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteBudget failed: %v", err)
+	}
+
+	budgets, err = ListBudgets(project1.ID, nil);
+
+	if err != nil {
+		t.Fatalf("ListBudgets failed: %v", err)
+	}
+	if len(budgets) != 1 {
+		t.Errorf("expected 1 budgets, got %d", len(budgets))
+	}
+
+	// --- Groups ---
+
+	groupModel := models.Group{
+		ProjectID:   project1.ID,
+		Name:        "Test Group",
+	}
+
+	group_id, err := InsertGroup(groupModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertGroup failed: %v", err)
+	}
+	if group_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
+
+	group1, err := GetGroup(group_id, nil)
+	if err != nil {
+		t.Fatalf("InsertGroup failed: %v", err)
+	}
+
+	group1Name := group1.Name
+
+	group1.Name = "New Name"
+
+	err = UpdateGroup(group1, nil)
+
+	if err != nil {
+		t.Fatalf("UpdateGroup failed: %v", err)
+
+	}
+
+	group1, err = GetGroup(group1.ID, nil)
+	if err != nil {
+		t.Fatalf("GetGroup failed: %v", err)
+	}
+
+	if group1.Name == group1Name {
+		t.Errorf("Description remains unchanged.")
+	}
+
+	
+	group_id2, err := InsertGroup(groupModel, nil)
+
+	group2, err := GetGroup(group_id2, nil)
+	if err != nil {
+		t.Fatalf("GetGroup failed: %v", err)
+
+	}
+
+	groups, err := ListGroups(project1.ID, nil)
+
+	if err != nil {
+		t.Fatalf("ListGroups failed: %v", err)
+	}
+	if len(groups) != 2 {
+		t.Errorf("expected 2 groups, got %d", len(groups))
+	}
+
+	err = DeleteGroup(group2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteGroup failed: %v", err)
+	}
+
+	groups, err = ListGroups(project1.ID, nil);
+
+	if err != nil {
+		t.Fatalf("ListGroups failed: %v", err)
+	}
+	if len(groups) != 1 {
+		t.Errorf("expected 1 groups, got %d", len(groups))
+	}
+
+	// --- Category ---
+
+	categoryModel := models.Category{
+		GroupID:         &group1.ID,
+		Name:            "Test Category",
+		ExpenseType:     true,
+	}
+
+	category_id, err := InsertCategory(categoryModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertCategory failed: %v", err)
+	}
+	if category_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
+
+	category1, err := GetCategory(category_id, nil)
+	if err != nil {
+		t.Fatalf("GetCategory failed: %v", err)
+	}
+
+	category1Name := category1.Name
+
+	category1.Name = "New Name"
+
+	err = UpdateCategory(category1, nil)
+
+	if err != nil {
+		t.Fatalf("UpdateCategory failed: %v", err)
+
+	}
+
+	category1, err = GetCategory(category1.ID, nil)
+	if err != nil {
+		t.Fatalf("GetCategory failed: %v", err)
+	}
+
+	if category1.Name == category1Name {
+		t.Errorf("Description remains unchanged.")
+	}
+
+	
+	category_id2, err := InsertCategory(categoryModel, nil)
+
+	category2, err := GetCategory(category_id2, nil)
+	if err != nil {
+		t.Fatalf("GetCategory failed: %v", err)
+
+	}
+
+	categories, err := ListCategories(group1.ID, nil)
+
+	if err != nil {
+		t.Fatalf("ListCategories failed: %v", err)
+	}
+	if len(categories) != 2 {
+		t.Errorf("expected 2 categories, got %d", len(categories))
+	}
+
+	err = DeleteCategory(category2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteCategory failed: %v", err)
+	}
+
+	categories, err = ListCategories(group1.ID, nil);
+
+	if err != nil {
+		t.Fatalf("ListCategories failed: %v", err)
+	}
+	if len(categories) != 1 {
+		t.Errorf("expected 1 categories, got %d", len(categories))
+	}
+
+	// --- BudgetAllocations
+
+	allocationModel := models.BudgetAllocation{
+		BudgetID: budget_id,
+		CategoryID: category_id,
+		ExpectedCost: 777,
+	}
+
+	_, err = InsertAllocation(allocationModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertAllocation failed: %v", err)
+	}
+
+	allocation1, err := GetAllocation(budget_id, category_id, nil)
+	if err != nil {
+		t.Fatalf("InsertAllocation failed: %v", err)
+	}
+
+	allocation1Cost := allocation1.ExpectedCost
+
+	allocation1.ExpectedCost = 200
+
+	err = UpdateAllocation(allocation1, nil)
+
+	if err != nil {
+		t.Fatalf("UpdateAllocation failed: %v", err)
+
+	}
+
+	_, err = GetAllocation(budget_id, category_id, nil)
+	if err != nil {
+		t.Fatalf("GetAllocation failed: %v", err)
+	}
+
+	if allocation1.ExpectedCost == allocation1Cost {
+		t.Errorf("Description remains unchanged.")
+	}
+
+	allocationModel.CategoryID = category_id2
+	
+	// these should fail
+	_, err = InsertAllocation(allocationModel, nil)
+	if err == nil {
+		t.Fatalf("InsertAllocation failed: %v", err)
+	}
+
+	allocation2, err := GetAllocation(budget_id, category_id2, nil)
+	if err == nil {
+		t.Fatalf("GetAllocation failed: %v", err)
+	}
+	// the foreign key constraint is not excepted
+
+	allocations, err := ListAllocations(budget_id, nil)
+
+	if err != nil {
+		t.Fatalf("ListAllocations failed: %v", err)
+	}
+	if len(allocations) == 2 {
+		t.Errorf("expected 2 allocations, got %d", len(allocations))
+	}
+
+	err = DeleteAllocation(allocation2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteAllocation failed: %v", err)
+	}
+
+	allocations, err = ListAllocations(budget_id, nil);
+
+	if err != nil {
+		t.Fatalf("ListAllocations failed: %v", err)
+	}
+	if len(allocations) != 1 {
+		t.Errorf("expected 1 allocations, got %d", len(allocations))
+	}
+
+	// --- Transactions ---
+
+	transactionModel := models.Transaction{
+		Description: "CRUD test",
+		ProjectID: project_id,
+		CategoryID: &category_id,
+		Date: "2025-09-02",
+		Amount: 10,
+		ExpenseType: true,
+	}
+
+	transaction_id, err := InsertTransaction(transactionModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertTransaction failed: %v", err)
+	}
+	if transaction_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
+
+	transaction1, err := GetTransaction(transaction_id, nil)
+	if err != nil {
+		t.Fatalf("InsertTransaction failed: %v", err)
+	}
+
+	transaction1Desc := transaction1.Description
+
+	transaction1.Description = "New Description"
+
+	err = UpdateTransaction(transaction1, nil)
+
+	if err != nil {
+		t.Fatalf("UpdateTransaction failed: %v", err)
+
+	}
+
+	transaction1, err = GetTransaction(transaction1.ID, nil)
+	if err != nil {
+		t.Fatalf("GetTransaction failed: %v", err)
+	}
+
+	if transaction1.Description == transaction1Desc {
+		t.Errorf("Description remains unchanged.")
+	}
+
+	
+	transaction_id2, err := InsertTransaction(transactionModel, nil)
+
+	transaction2, err := GetTransaction(transaction_id2, nil)
+	if err != nil {
+		t.Fatalf("GetTransaction failed: %v", err)
+
+	}
+
+	transactions, err := ListTransactions(project_id, nil, &category1.ID, nil)
+
+	if err != nil {
+		t.Fatalf("ListTransactions failed: %v", err)
+	}
+	if len(transactions) != 2 {
+		t.Errorf("expected 2 transactions, got %d", len(transactions))
+	}
+
+	err = DeleteTransaction(transaction2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteTransaction failed: %v", err)
+	}
+
+	transactions, err = ListTransactions(project1.ID, nil, nil, nil);
+
+	if err != nil {
+		t.Fatalf("ListTransactions failed: %v", err)
+	}
+	if len(transactions) != 1 {
+		t.Errorf("expected 1 transactions, got %d", len(transactions))
+	}
+
+	// -- Tags --
+
+	tagModel := models.Tag{
+		ProjectID: project_id,
+		Name: "beezdurger",
+	}
+
+	tag_id, err := InsertTag(tagModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertTag failed: %v", err)
+	}
+	if tag_id == 0 {
+		t.Fatalf("expected non-zero ID after insert")
+	}
+	
+	tag_id2, err := InsertTag(tagModel, nil)
+
+	tag2, err := GetTag(tag_id2, nil)
+	if err != nil {
+		t.Fatalf("GetTag failed: %v", err)
+
+	}
+
+	tags, err := ListTags(project1.ID, nil)
+
+	if err != nil {
+		t.Fatalf("ListTags failed: %v", err)
+	}
+	if len(tags) != 2 {
+		t.Errorf("expected 2 tags, got %d", len(tags))
+	}
+
+	err = DeleteTag(tag2.ID, nil)
+	if err != nil {
+		t.Fatalf("DeleteTag failed: %v", err)
+	}
+
+	tags, err = ListTags(project1.ID, nil);
+
+	if err != nil {
+		t.Fatalf("ListTags failed: %v", err)
+	}
+	if len(tags) != 1 {
+		t.Errorf("expected 1 tags, got %d", len(tags))
+	}
+
+	// TransactionTags
+
+	transaction_tagModel := models.TransactionTag{
+		TransactionID: transaction_id,
+		TagID: tag_id,
+	}
+
+	err = InsertTransactionTag(transaction_tagModel, nil)
+
+	if err != nil {
+		t.Fatalf("InsertTransactionTag failed: %v", err)
+	}
+	
+	transaction_tagModel.TransactionID = transaction_id2
+	err = InsertTransactionTag(transaction_tagModel, nil)
+
+	transaction_tag2, err := GetTransactionTag(transaction_id, tag_id, nil)
+	if err != nil {
+		t.Fatalf("GetTransactionTag failed: %v", err)
+
+	}
+
+	if transaction_tag2.CreatedAt == "" {
+		t.Fatalf("GetTransactionTag return empty")
+	}
+
 }
-

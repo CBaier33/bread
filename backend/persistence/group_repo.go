@@ -5,15 +5,19 @@ import (
 )
 
 // InsertGroup inserts a new group into the database and returns its ID.
-func InsertGroup(g models.Group) (int64, error) {
-	res, err := DB.Exec(`
-		INSERT INTO groups(budget_id, name, description, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?)`,
-		g.BudgetID,
+func InsertGroup(g models.Group, db runner) (int64, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	res, err := db.Exec(`
+		INSERT INTO groups(project_id, name, description)
+		VALUES (?, ?, ?)`,
+		g.ProjectID,
 		g.Name,
 		g.Description,
-		g.CreatedAt,
-		g.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err
@@ -22,32 +26,45 @@ func InsertGroup(g models.Group) (int64, error) {
 }
 
 // GetGroup retrieves a group by ID.
-func GetGroup(id int64) (*models.Group, error) {
-	row := DB.QueryRow(`
-		SELECT id, budget_id, name, description, created_at, updated_at
+func GetGroup(id int64, db runner) (models.Group, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	row := db.QueryRow(`
+		SELECT id, project_id, name, description, created_at, updated_at
 		FROM groups
 		WHERE id = ?`, id)
 
 	var g models.Group
 	if err := row.Scan(
 		&g.ID,
-		&g.BudgetID,
+		&g.ProjectID,
 		&g.Name,
 		&g.Description,
 		&g.CreatedAt,
 		&g.UpdatedAt,
 	); err != nil {
-		return nil, err
+		return g, err
 	}
-	return &g, nil
+	return g, nil
 }
 
 // ListGroups lists all groups.
-func ListGroups() ([]models.Group, error) {
-	rows, err := DB.Query(`
-		SELECT id, budget_id, name, description, created_at, updated_at
+func ListGroups(projectID int64, db runner) ([]models.Group, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	rows, err := db.Query(`
+		SELECT id, project_id, name, description, created_at, updated_at
 		FROM groups
-		ORDER BY id`)
+		WHERE project_id = ?
+		ORDER BY id`, projectID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +75,7 @@ func ListGroups() ([]models.Group, error) {
 		var g models.Group
 		if err := rows.Scan(
 			&g.ID,
-			&g.BudgetID,
+			&g.ProjectID,
 			&g.Name,
 			&g.Description,
 			&g.CreatedAt,
@@ -72,22 +89,33 @@ func ListGroups() ([]models.Group, error) {
 }
 
 // UpdateGroup updates a group.
-func UpdateGroup(g models.Group) error {
-	_, err := DB.Exec(`
+func UpdateGroup(g models.Group, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`
 		UPDATE groups
-		SET name = ?, description = ?, updated_at = ?
+		SET name = ?, description = ?, updated_at = (datetime('now'))
 		WHERE id = ?`,
 		g.Name,
 		g.Description,
-		g.UpdatedAt,
 		g.ID,
 	)
 	return err
 }
 
 // DeleteGroup deletes a group.
-func DeleteGroup(id int64) error {
-	_, err := DB.Exec(`DELETE FROM groups WHERE id = ?`, id)
+func DeleteGroup(id int64, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`DELETE FROM groups WHERE id = ?`, id)
 	return err
 }
 

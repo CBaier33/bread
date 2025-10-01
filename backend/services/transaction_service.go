@@ -4,37 +4,31 @@ import (
 	"bread/backend/models"
 	"bread/backend/persistence"
 	"fmt"
-	"time"
 )
 
 type TransactionService struct{}
 
 func (s *TransactionService) CreateTransaction(
+	projectID int64,
+	categoryID *int64,
 	desc string,
 	amount int64,
 	date string,
+	expenseType bool,
 	notes string,
-	tags string,
-	budgetID int64,
-	groupID *int64,
-	categoryID *int64,
 ) (models.Transaction, error) {
-	currentTS := time.Now().Format("2006-01-02 15:04:05")
 
 	t := models.Transaction{
 		Description: desc,
-		Amount:      amount,
-		Date:        date,
-		Notes:       notes,
-		Tags:        tags,
-		BudgetID:    budgetID,
-		GroupID:     groupID,
+		ProjectID:     projectID,
 		CategoryID:  categoryID,
-		CreatedAt:   currentTS,
-		UpdatedAt:   currentTS,
+		Date:        date,
+		Amount:      amount,
+		ExpenseType: expenseType,
+		Notes: notes,
 	}
 
-	id, err := persistence.InsertTransaction(t)
+	id, err := persistence.InsertTransaction(t, nil)
 	if err != nil {
 		return t, fmt.Errorf("CreateTransaction: %w", err)
 	}
@@ -43,7 +37,7 @@ func (s *TransactionService) CreateTransaction(
 }
 
 func (s *TransactionService) GetTransaction(id int64) (models.Transaction, error) {
-	t, err := persistence.GetTransaction(id)
+	t, err := persistence.GetTransaction(id, nil)
 	if err != nil {
 		return t, fmt.Errorf("GetTransaction: %w", err)
 	}
@@ -51,30 +45,19 @@ func (s *TransactionService) GetTransaction(id int64) (models.Transaction, error
 }
 
 // ListTransactions returns all transactions optionally filtered by categoryID
-func (s *TransactionService) ListTransactions(categoryID *int64) ([]models.Transaction, error) {
-	all, err := persistence.GetTransactions()
+func (s *TransactionService) ListTransactions(projectID int64, groupID, categoryID *int64) ([]models.Transaction, error) {
+	result, err := persistence.ListTransactions(projectID, groupID, categoryID, nil)
 	if err != nil {
 		return nil, fmt.Errorf("ListTransactions: %w", err)
 	}
 
-	if categoryID == nil {
-		return all, nil
-	}
+	return result, err
 
-	// Filter by categoryID
-	var filtered []models.Transaction
-	for _, t := range all {
-		if t.CategoryID != nil && *t.CategoryID == *categoryID {
-			filtered = append(filtered, t)
-		}
-	}
-	return filtered, nil
 }
 
 // UpdateTransaction updates an existing transaction
 func (s *TransactionService) UpdateTransaction(t models.Transaction) error {
-	t.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-	if err := persistence.UpdateTransaction(t); err != nil {
+	if err := persistence.UpdateTransaction(t, nil); err != nil {
 		return fmt.Errorf("UpdateTransaction: %w", err)
 	}
 	return nil
@@ -82,7 +65,7 @@ func (s *TransactionService) UpdateTransaction(t models.Transaction) error {
 
 // DeleteTransaction removes a transaction by ID
 func (s *TransactionService) DeleteTransaction(id int64) error {
-	if err := persistence.DeleteTransaction(id); err != nil {
+	if err := persistence.DeleteTransaction(id, nil); err != nil {
 		return fmt.Errorf("DeleteTransaction: %w", err)
 	}
 	return nil
