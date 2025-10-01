@@ -4,49 +4,58 @@ import (
 	"bread/backend/models"
 	"bread/backend/persistence"
 	"fmt"
-	"time"
 )
 
 type GroupService struct{}
 
-func (s *GroupService) CreateGroup(budgetID int64, name string, description string) (models.Group, error) {
-	now := time.Now().Format("2006-01-02 15:04:05")
-	g := models.Group{
-		BudgetID: budgetID,
+// CreateGroup inserts a new group and returns the full group with ID populated
+func (s *GroupService) CreateGroup(periodID int64, name, description string) (models.Group, error) {
+
+	b := models.Group{
+		ProjectID:   periodID,
 		Name:        name,
 		Description: description,
-		CreatedAt:   now,
-		UpdatedAt:   now,
 	}
 
-	id, err := persistence.InsertGroup(g)
+	id, err := persistence.InsertGroup(b, nil)
 	if err != nil {
-		return g, fmt.Errorf("CreateGroup: %w", err)
+		return b, fmt.Errorf("CreateGroup: %w", err)
 	}
-	g.ID = id
-	return g, nil
+	b.ID = id
+	return b, nil
 }
 
+// GetGroup retrieves a group by ID
 func (s *GroupService) GetGroup(id int64) (models.Group, error) {
-	g, err := persistence.GetGroup(id)
+	b, err := persistence.GetGroup(id, nil)
 	if err != nil {
-		return models.Group{}, fmt.Errorf("GetGroupByID: %w", err)
+		return b, fmt.Errorf("GetGroup: %w", err)
 	}
-	return *g, nil
+	return b, nil
 }
 
-func (s *GroupService) ListGroups() ([]models.Group, error) {
-	return persistence.ListGroups()
-}
-
-func (s *GroupService) UpdateGroup(g models.Group) error {
-	if g.UpdatedAt == "" {
-		g.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+// ListGroups returns all groups
+func (s *GroupService) ListGroups(projectID int64) ([]models.Group, error) {
+	groups, err := persistence.ListGroups(projectID, nil)
+	if err != nil {
+		return nil, fmt.Errorf("ListGroups: %w", err)
 	}
-	return persistence.UpdateGroup(g)
+	return groups, nil
 }
 
+// UpdateGroup updates a group's name or period
+func (s *GroupService) UpdateGroup(b models.Group) error {
+	if err := persistence.UpdateGroup(b, nil); err != nil {
+		return fmt.Errorf("UpdateGroup: %w", err)
+	}
+	return nil
+}
+
+// DeleteGroup removes a group by ID
 func (s *GroupService) DeleteGroup(id int64) error {
-	return persistence.DeleteGroup(id)
+	if err := persistence.DeleteGroup(id, nil); err != nil {
+		return fmt.Errorf("DeleteGroup: %w", err)
+	}
+	return nil
 }
 

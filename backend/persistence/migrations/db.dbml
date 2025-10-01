@@ -1,106 +1,90 @@
+// Projects Table
 Table projects {
-  id integer [primary key, increment]
+  id integer [pk, increment]
   name text [not null]
-  description text [not null]
-  currency text [not null] // USD, EUR, etc.
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
+  description text
+  currency text [not null]
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
+// Groups Table
 Table groups {
-  id integer [primary key, increment]
-  project_id integer [not null]
+  id integer [pk, increment]
+  project_id integer [not null, ref: > projects.id]
   name text [not null]
   description text
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-  
-  Indexes {
-    (project_id, name) [unique] // scoped uniqueness
-  }
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
-Ref: projects.id < groups.project_id
-
+// Categories Table
 Table categories {
-  id integer [primary key, increment]
-  group_id integer [not null]
+  id integer [pk, increment]
+  group_id integer [not null, ref: > groups.id]
   name text [not null]
   description text
-  expense_type boolean [not null]          // True -> Withdrawal, False -> Deposit
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-  
-  Indexes {
-    (group_id, name) [unique] // scoped uniqueness
-  }
+  expense_type boolean [not null, note: 'True = Withdrawal, False = Deposit']
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
-Ref: groups.id < categories.group_id
-
+// Budgets Table
 Table budgets {
-  id integer [primary key, increment]
-  project_id integer [not null]
+  id integer [pk, increment]
+  project_id integer [not null, ref: > projects.id]
   name text [not null]
-  period_start text [not null] // YYYY-MM-DD
-  period_end text [not null]   // YYYY-MM-DD
-  expected_income integer [not null] // in cents
-  starting_balance integer [not null] // in cents
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
+  period_start text [not null]
+  period_end text [not null]
+  expected_income integer [not null]
+  starting_balance integer [not null]
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
-Ref: projects.id < budgets.project_id
-
+// Budget Allocations Table
 Table budget_allocations {
-  id integer [primary key, increment]
-  budget_id integer [not null]
-  category_id integer [not null]
-  expected_cost integer [not null] // in cents
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-  
-  Indexes {
-    (budget_id, category_id) [unique]
+  id integer [pk, increment]
+  budget_id integer [not null, ref: > budgets.id]
+  category_id integer [not null, ref: > categories.id]
+  expected_cost integer [not null]
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
+  indexes {
+    (budget_id, category_id) [name: "idx_budget_allocations_budget_category"]
   }
 }
 
-Ref: budgets.id < budget_allocations.budget_id
-Ref: categories.id < budget_allocations.category_id
-
+// Transactions Table
 Table transactions {
-  id integer [primary key, increment]
-  project_id integer [not null]
-  category_id integer
+  id integer [pk, increment]
+  project_id integer [not null, ref: > projects.id]
+  category_id integer [ref: > categories.id, note: "ON DELETE SET NULL"]
   description text [not null]
-  date text [not null]                     // YYYY-MM-DD
-  amount integer [not null]                // in cents
-  expense_type boolean [not null]          // True -> Withdrawal, False -> Deposit
+  date text [not null]
+  amount integer [not null, note: "in cents"]
+  expense_type boolean [not null, note: 'True = Withdrawal, False = Deposit']
   notes text
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
-Ref: projects.id < transactions.project_id
-Ref: categories.id < transactions.category_id
-
+// Tags Table
 Table tags {
-  id integer [primary key, increment]
+  id integer [pk, increment]
+  project_id integer [not null, ref: > projects.id]
   name text [not null]
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
+  created_at text [not null, default: `datetime('now')`]
+  updated_at text [not null, default: `datetime('now')`]
 }
 
+// Transaction Tags (Join Table)
 Table transaction_tags {
-  transaction_id integer [not null]
-  tag_id integer [not null]
-  created_at text [not null, default: "datetime('now')"]
-  updated_at text [not null, default: "datetime('now')"]
-  
-  Indexes {
-    (transaction_id, tag_id) [unique]
+  transaction_id integer [not null, ref: > transactions.id]
+  tag_id integer [not null, ref: > tags.id]
+  created_at text [not null, default: `datetime('now')`]
+  indexes {
+    (transaction_id, tag_id) [name: "idx_transaction_tags"]
   }
 }
 
-Ref: transactions.id < transaction_tags.transaction_id
-Ref: tags.id < transaction_tags.tag_id

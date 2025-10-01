@@ -5,8 +5,13 @@ import (
 )
 
 // InsertProject inserts a new project and returns its ID
-func InsertProject(b models.Project) (int64, error) {
-	res, err := DB.Exec(`
+func InsertProject(b models.Project, db runner) (int64, error) {
+
+	if db == nil {
+		db = DB
+	}
+
+	res, err := db.Exec(`
         INSERT INTO projects(name, description, currency)
         VALUES (?, ?, ?)`,
 		b.Name,
@@ -21,8 +26,14 @@ func InsertProject(b models.Project) (int64, error) {
 }
 
 // GetProject retrieves a project by ID
-func GetProject(id int64) (models.Project, error) {
-	row := DB.QueryRow(`
+func GetProject(id int64, db runner) (models.Project, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	row := db.QueryRow(`
         SELECT id, name, description, currency, created_at, updated_at
         FROM projects
         WHERE id = ?`, id)
@@ -42,8 +53,13 @@ func GetProject(id int64) (models.Project, error) {
 }
 
 // ListProjects retrieves all projects
-func ListProjects() ([]models.Project, error) {
-	rows, err := DB.Query(`
+func ListProjects(db runner) ([]models.Project, error) {
+
+	if db == nil {
+		db = DB
+	}
+
+	rows, err := db.Query(`
         SELECT id, name, description, currency, created_at, updated_at
         FROM projects
         ORDER BY description DESC
@@ -73,8 +89,14 @@ func ListProjects() ([]models.Project, error) {
 }
 
 // UpdateProject updates a project
-func UpdateProject(b models.Project) error {
-	_, err := DB.Exec(`
+func UpdateProject(b models.Project, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`
         UPDATE projects
         SET name = ?, description = ?, currency = ?, updated_at = (datetime('now'))
         WHERE id = ?`,
@@ -87,8 +109,14 @@ func UpdateProject(b models.Project) error {
 }
 
 // DeleteProject deletes a project by ID
-func DeleteProject(id int64) error {
-	_, err := DB.Exec(`DELETE FROM projects WHERE id = ?`, id)
+func DeleteProject(id int64, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`DELETE FROM projects WHERE id = ?`, id)
 	return err
 }
 

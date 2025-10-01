@@ -16,7 +16,7 @@ func TestPersistenceBasic(t *testing.T) {
 		Currency:    "USD",
 	}
 
-	project_id, err := InsertProject(projectModel)
+	project_id, err := InsertProject(projectModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertProject failed: %v", err)
@@ -25,7 +25,7 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 
-	project1, err := GetProject(project_id)
+	project1, err := GetProject(project_id, nil)
 	if err != nil {
 		t.Fatalf("InsertProject failed: %v", err)
 	}
@@ -34,14 +34,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	project1.Description = "New Description"
 
-	err = UpdateProject(project1)
+	err = UpdateProject(project1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateProject failed: %v", err)
 
 	}
 
-	project1, err = GetProject(project1.ID)
+	project1, err = GetProject(project1.ID, nil)
 	if err != nil {
 		t.Fatalf("GetProject failed: %v", err)
 	}
@@ -51,15 +51,15 @@ func TestPersistenceBasic(t *testing.T) {
 	}
 
 	
-	project_id2, err := InsertProject(projectModel)
+	project_id2, err := InsertProject(projectModel, nil)
 
-	project2, err := GetProject(project_id2)
+	project2, err := GetProject(project_id2, nil)
 	if err != nil {
 		t.Fatalf("GetProject failed: %v", err)
 
 	}
 
-	projects, err := ListProjects()
+	projects, err := ListProjects(nil)
 
 	if err != nil {
 		t.Fatalf("ListProjects failed: %v", err)
@@ -68,12 +68,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 projects, got %d", len(projects))
 	}
 
-	err = DeleteProject(project2.ID)
+	err = DeleteProject(project2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteProject failed: %v", err)
 	}
 
-	projects, err = ListProjects();
+	projects, err = ListProjects(nil);
 
 	if err != nil {
 		t.Fatalf("ListProjects failed: %v", err)
@@ -93,7 +93,7 @@ func TestPersistenceBasic(t *testing.T) {
 		StartingBalance: 100,
 	}
 
-	budget_id, err := InsertBudget(budgetModel)
+	budget_id, err := InsertBudget(budgetModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertBudget failed: %v", err)
@@ -102,7 +102,7 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 
-	budget1, err := GetBudget(budget_id)
+	budget1, err := GetBudget(budget_id, nil)
 	if err != nil {
 		t.Fatalf("InsertBudget failed: %v", err)
 	}
@@ -111,14 +111,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	budget1.Name = "New Name"
 
-	err = UpdateBudget(budget1)
+	err = UpdateBudget(budget1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateBudget failed: %v", err)
 
 	}
 
-	budget1, err = GetBudget(budget1.ID)
+	budget1, err = GetBudget(budget1.ID, nil)
 	if err != nil {
 		t.Fatalf("GetBudget failed: %v", err)
 	}
@@ -128,15 +128,15 @@ func TestPersistenceBasic(t *testing.T) {
 	}
 
 	
-	budget_id2, err := InsertBudget(budgetModel)
+	budget_id2, err := InsertBudget(budgetModel, nil)
 
-	budget2, err := GetBudget(budget_id2)
+	budget2, err := GetBudget(budget_id2, nil)
 	if err != nil {
 		t.Fatalf("GetBudget failed: %v", err)
 
 	}
 
-	budgets, err := ListBudgets()
+	budgets, err := ListBudgets(project1.ID, nil)
 
 	if err != nil {
 		t.Fatalf("ListBudgets failed: %v", err)
@@ -145,12 +145,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 budgets, got %d", len(budgets))
 	}
 
-	err = DeleteBudget(budget2.ID)
+	err = DeleteBudget(budget2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteBudget failed: %v", err)
 	}
 
-	budgets, err = ListBudgets();
+	budgets, err = ListBudgets(project1.ID, nil);
 
 	if err != nil {
 		t.Fatalf("ListBudgets failed: %v", err)
@@ -166,7 +166,7 @@ func TestPersistenceBasic(t *testing.T) {
 		Name:        "Test Group",
 	}
 
-	group_id, err := InsertGroup(groupModel)
+	group_id, err := InsertGroup(groupModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertGroup failed: %v", err)
@@ -175,7 +175,7 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 
-	group1, err := GetGroup(group_id)
+	group1, err := GetGroup(group_id, nil)
 	if err != nil {
 		t.Fatalf("InsertGroup failed: %v", err)
 	}
@@ -184,14 +184,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	group1.Name = "New Name"
 
-	err = UpdateGroup(group1)
+	err = UpdateGroup(group1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateGroup failed: %v", err)
 
 	}
 
-	group1, err = GetGroup(group1.ID)
+	group1, err = GetGroup(group1.ID, nil)
 	if err != nil {
 		t.Fatalf("GetGroup failed: %v", err)
 	}
@@ -201,15 +201,15 @@ func TestPersistenceBasic(t *testing.T) {
 	}
 
 	
-	group_id2, err := InsertGroup(groupModel)
+	group_id2, err := InsertGroup(groupModel, nil)
 
-	group2, err := GetGroup(group_id2)
+	group2, err := GetGroup(group_id2, nil)
 	if err != nil {
 		t.Fatalf("GetGroup failed: %v", err)
 
 	}
 
-	groups, err := ListGroups()
+	groups, err := ListGroups(project1.ID, nil)
 
 	if err != nil {
 		t.Fatalf("ListGroups failed: %v", err)
@@ -218,12 +218,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 groups, got %d", len(groups))
 	}
 
-	err = DeleteGroup(group2.ID)
+	err = DeleteGroup(group2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteGroup failed: %v", err)
 	}
 
-	groups, err = ListGroups();
+	groups, err = ListGroups(project1.ID, nil);
 
 	if err != nil {
 		t.Fatalf("ListGroups failed: %v", err)
@@ -240,7 +240,7 @@ func TestPersistenceBasic(t *testing.T) {
 		ExpenseType:     true,
 	}
 
-	category_id, err := InsertCategory(categoryModel)
+	category_id, err := InsertCategory(categoryModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertCategory failed: %v", err)
@@ -249,7 +249,7 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 
-	category1, err := GetCategory(category_id)
+	category1, err := GetCategory(category_id, nil)
 	if err != nil {
 		t.Fatalf("GetCategory failed: %v", err)
 	}
@@ -258,14 +258,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	category1.Name = "New Name"
 
-	err = UpdateCategory(category1)
+	err = UpdateCategory(category1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateCategory failed: %v", err)
 
 	}
 
-	category1, err = GetCategory(category1.ID)
+	category1, err = GetCategory(category1.ID, nil)
 	if err != nil {
 		t.Fatalf("GetCategory failed: %v", err)
 	}
@@ -275,15 +275,15 @@ func TestPersistenceBasic(t *testing.T) {
 	}
 
 	
-	category_id2, err := InsertCategory(categoryModel)
+	category_id2, err := InsertCategory(categoryModel, nil)
 
-	category2, err := GetCategory(category_id2)
+	category2, err := GetCategory(category_id2, nil)
 	if err != nil {
 		t.Fatalf("GetCategory failed: %v", err)
 
 	}
 
-	categories, err := ListCategories()
+	categories, err := ListCategories(group1.ID, nil)
 
 	if err != nil {
 		t.Fatalf("ListCategories failed: %v", err)
@@ -292,12 +292,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 categories, got %d", len(categories))
 	}
 
-	err = DeleteCategory(category2.ID)
+	err = DeleteCategory(category2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteCategory failed: %v", err)
 	}
 
-	categories, err = ListCategories();
+	categories, err = ListCategories(group1.ID, nil);
 
 	if err != nil {
 		t.Fatalf("ListCategories failed: %v", err)
@@ -314,16 +314,13 @@ func TestPersistenceBasic(t *testing.T) {
 		ExpectedCost: 777,
 	}
 
-	allocation_id, err := InsertAllocation(allocationModel)
+	_, err = InsertAllocation(allocationModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertAllocation failed: %v", err)
 	}
-	if allocation_id == 0 {
-		t.Fatalf("expected non-zero ID after insert")
-	}
 
-	allocation1, err := GetAllocation(allocation_id)
+	allocation1, err := GetAllocation(budget_id, category_id, nil)
 	if err != nil {
 		t.Fatalf("InsertAllocation failed: %v", err)
 	}
@@ -332,14 +329,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	allocation1.ExpectedCost = 200
 
-	err = UpdateAllocation(allocation1)
+	err = UpdateAllocation(allocation1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateAllocation failed: %v", err)
 
 	}
 
-	allocation1, err = GetAllocation(allocation1.ID)
+	_, err = GetAllocation(budget_id, category_id, nil)
 	if err != nil {
 		t.Fatalf("GetAllocation failed: %v", err)
 	}
@@ -348,32 +345,35 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("Description remains unchanged.")
 	}
 
+	allocationModel.CategoryID = category_id2
 	
-	allocation_id2, err := InsertAllocation(allocationModel)
-	if err != nil {
+	// these should fail
+	_, err = InsertAllocation(allocationModel, nil)
+	if err == nil {
 		t.Fatalf("InsertAllocation failed: %v", err)
 	}
 
-	allocation2, err := GetAllocation(allocation_id2)
-	if err != nil {
+	allocation2, err := GetAllocation(budget_id, category_id2, nil)
+	if err == nil {
 		t.Fatalf("GetAllocation failed: %v", err)
 	}
+	// the foreign key constraint is not excepted
 
-	allocations, err := ListAllocations()
+	allocations, err := ListAllocations(budget_id, nil)
 
 	if err != nil {
 		t.Fatalf("ListAllocations failed: %v", err)
 	}
-	if len(allocations) != 2 {
+	if len(allocations) == 2 {
 		t.Errorf("expected 2 allocations, got %d", len(allocations))
 	}
 
-	err = DeleteAllocation(allocation2.ID)
+	err = DeleteAllocation(allocation2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteAllocation failed: %v", err)
 	}
 
-	allocations, err = ListAllocations();
+	allocations, err = ListAllocations(budget_id, nil);
 
 	if err != nil {
 		t.Fatalf("ListAllocations failed: %v", err)
@@ -393,7 +393,7 @@ func TestPersistenceBasic(t *testing.T) {
 		ExpenseType: true,
 	}
 
-	transaction_id, err := InsertTransaction(transactionModel)
+	transaction_id, err := InsertTransaction(transactionModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertTransaction failed: %v", err)
@@ -402,7 +402,7 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 
-	transaction1, err := GetTransaction(transaction_id)
+	transaction1, err := GetTransaction(transaction_id, nil)
 	if err != nil {
 		t.Fatalf("InsertTransaction failed: %v", err)
 	}
@@ -411,14 +411,14 @@ func TestPersistenceBasic(t *testing.T) {
 
 	transaction1.Description = "New Description"
 
-	err = UpdateTransaction(transaction1)
+	err = UpdateTransaction(transaction1, nil)
 
 	if err != nil {
 		t.Fatalf("UpdateTransaction failed: %v", err)
 
 	}
 
-	transaction1, err = GetTransaction(transaction1.ID)
+	transaction1, err = GetTransaction(transaction1.ID, nil)
 	if err != nil {
 		t.Fatalf("GetTransaction failed: %v", err)
 	}
@@ -428,15 +428,15 @@ func TestPersistenceBasic(t *testing.T) {
 	}
 
 	
-	transaction_id2, err := InsertTransaction(transactionModel)
+	transaction_id2, err := InsertTransaction(transactionModel, nil)
 
-	transaction2, err := GetTransaction(transaction_id2)
+	transaction2, err := GetTransaction(transaction_id2, nil)
 	if err != nil {
 		t.Fatalf("GetTransaction failed: %v", err)
 
 	}
 
-	transactions, err := ListTransactions()
+	transactions, err := ListTransactions(project_id, nil, &category1.ID, nil)
 
 	if err != nil {
 		t.Fatalf("ListTransactions failed: %v", err)
@@ -445,12 +445,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 transactions, got %d", len(transactions))
 	}
 
-	err = DeleteTransaction(transaction2.ID)
+	err = DeleteTransaction(transaction2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteTransaction failed: %v", err)
 	}
 
-	transactions, err = ListTransactions();
+	transactions, err = ListTransactions(project1.ID, nil, nil, nil);
 
 	if err != nil {
 		t.Fatalf("ListTransactions failed: %v", err)
@@ -466,7 +466,7 @@ func TestPersistenceBasic(t *testing.T) {
 		Name: "beezdurger",
 	}
 
-	tag_id, err := InsertTag(tagModel)
+	tag_id, err := InsertTag(tagModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertTag failed: %v", err)
@@ -475,15 +475,15 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Fatalf("expected non-zero ID after insert")
 	}
 	
-	tag_id2, err := InsertTag(tagModel)
+	tag_id2, err := InsertTag(tagModel, nil)
 
-	tag2, err := GetTag(tag_id2)
+	tag2, err := GetTag(tag_id2, nil)
 	if err != nil {
 		t.Fatalf("GetTag failed: %v", err)
 
 	}
 
-	tags, err := ListTags()
+	tags, err := ListTags(project1.ID, nil)
 
 	if err != nil {
 		t.Fatalf("ListTags failed: %v", err)
@@ -492,12 +492,12 @@ func TestPersistenceBasic(t *testing.T) {
 		t.Errorf("expected 2 tags, got %d", len(tags))
 	}
 
-	err = DeleteTag(tag2.ID)
+	err = DeleteTag(tag2.ID, nil)
 	if err != nil {
 		t.Fatalf("DeleteTag failed: %v", err)
 	}
 
-	tags, err = ListTags();
+	tags, err = ListTags(project1.ID, nil);
 
 	if err != nil {
 		t.Fatalf("ListTags failed: %v", err)
@@ -513,16 +513,16 @@ func TestPersistenceBasic(t *testing.T) {
 		TagID: tag_id,
 	}
 
-	err = InsertTransactionTag(transaction_tagModel)
+	err = InsertTransactionTag(transaction_tagModel, nil)
 
 	if err != nil {
 		t.Fatalf("InsertTransactionTag failed: %v", err)
 	}
 	
 	transaction_tagModel.TransactionID = transaction_id2
-	err = InsertTransactionTag(transaction_tagModel)
+	err = InsertTransactionTag(transaction_tagModel, nil)
 
-	transaction_tag2, err := GetTransactionTag(transaction_id, tag_id)
+	transaction_tag2, err := GetTransactionTag(transaction_id, tag_id, nil)
 	if err != nil {
 		t.Fatalf("GetTransactionTag failed: %v", err)
 

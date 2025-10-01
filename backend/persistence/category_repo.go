@@ -5,8 +5,14 @@ import (
 )
 
 // InsertCategory inserts a new category into the database and returns its ID.
-func InsertCategory(c models.Category) (int64, error) {
-	res, err := DB.Exec(`
+func InsertCategory(c models.Category, db runner) (int64, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	res, err := db.Exec(`
 		INSERT INTO categories(group_id, name, description, expense_type)
 		VALUES (?, ?, ?, ?)`,
 		c.GroupID,
@@ -21,8 +27,14 @@ func InsertCategory(c models.Category) (int64, error) {
 }
 
 // GetCategory retrieves a category by ID.
-func GetCategory(id int64) (models.Category, error) {
-	row := DB.QueryRow(`
+func GetCategory(id int64, db runner) (models.Category, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	row := db.QueryRow(`
 		SELECT id, group_id, name, description, expense_type, created_at, updated_at
 		FROM categories
 		WHERE id = ?`, id)
@@ -43,11 +55,18 @@ func GetCategory(id int64) (models.Category, error) {
 }
 
 // ListCategories lists all categories.
-func ListCategories() ([]models.Category, error) {
-	rows, err := DB.Query(`
+func ListCategories(groupID int64, db runner) ([]models.Category, error) {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	rows, err := db.Query(`
 		SELECT id, group_id, name, description, expense_type, created_at, updated_at
 		FROM categories
-		ORDER BY id`)
+		WHERE group_id = ?
+		ORDER BY id`, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +92,14 @@ func ListCategories() ([]models.Category, error) {
 }
 
 // UpdateCategory updates a category.
-func UpdateCategory(c models.Category) error {
-	_, err := DB.Exec(`
+func UpdateCategory(c models.Category, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`
 		UPDATE categories
 		SET group_id = ?, name = ?, description = ?, expense_type = ?, updated_at = (datetime('now'))
 		WHERE id = ?`,
@@ -88,7 +113,13 @@ func UpdateCategory(c models.Category) error {
 }
 
 // DeleteCategory deletes a category.
-func DeleteCategory(id int64) error {
-	_, err := DB.Exec(`DELETE FROM categories WHERE id = ?`, id)
+func DeleteCategory(id int64, db runner) error {
+
+
+	if db == nil {
+		db = DB
+	}
+
+	_, err := db.Exec(`DELETE FROM categories WHERE id = ?`, id)
 	return err
 }
