@@ -72,9 +72,9 @@ func TestServices(t *testing.T) {
     t.Errorf("expected budges length of 2, got %d", len(budgets))
 	}
 
-	budget3_allocs, err := persistence.ListAllocations(budget3_id, nil)
+	budget3_allocs, err := bs.ListAllocations(budget3_id)
 
-	budget1_allocs, err := persistence.ListAllocations(budget1.ID, nil)
+	budget1_allocs, err := bs.ListAllocations(budget1.ID)
 
 	if len(budget1_allocs) != len(budget3_allocs)  || len(budget1_allocs) == 0{
 		t.Errorf("DuplicateBudget: Duplication failed, Budget1 : %d | Budget2: %d", len(budget1_allocs), len(budget3_allocs))

@@ -15,8 +15,9 @@ func NewGroupController() *GroupController {
 	}
 }
 
-func (c *GroupController) CreateGroup(budgetID int64, name, description string) (models.Group, error) {
-	return c.service.CreateGroup(budgetID, name, description)
+// CreateGroup inserts a new group and returns it
+func (c *GroupController) CreateGroup(periodID int64, name, description string) (models.Group, error) {
+	return c.service.CreateGroup(periodID, name, description)
 }
 
 // GetGroup retrieves a group by ID
@@ -24,17 +25,17 @@ func (c *GroupController) GetGroup(id int64) (models.Group, error) {
 	return c.service.GetGroup(id)
 }
 
-// ListGroups returns all categories
-func (c *GroupController) ListGroups() ([]models.Group, error) {
-	return c.service.ListGroups()
+// ListGroups returns all groups for a project
+func (c *GroupController) ListGroups(projectID int64) ([]models.Group, error) {
+	return c.service.ListGroups(projectID)
 }
 
-// UpdateGroup updates an existing group
-func (c *GroupController) UpdateGroup(group models.Group) error {
-	return c.service.UpdateGroup(group)
+// UpdateGroup updates a group's data
+func (c *GroupController) UpdateGroup(b models.Group) error {
+	return c.service.UpdateGroup(b)
 }
 
-// DeleteGroup deletes a group by ID
+// DeleteGroup removes a group by ID
 func (c *GroupController) DeleteGroup(id int64) error {
 	return c.service.DeleteGroup(id)
 }

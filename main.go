@@ -24,17 +24,10 @@ func main() {
         },
         BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
         OnStartup:        app.Startup,
-        Bind: []interface{}{
-            app,
-						&controllers.TransactionController{},
-						&controllers.BudgetController{}, 
-						&controllers.GroupController{},
-						&controllers.CategoryController{},
-        },
+        Bind:             controllers.All(), 
     })
 
     if err != nil {
         println("Error:", err.Error())
     }
 }
-
