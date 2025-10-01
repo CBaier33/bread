@@ -58,6 +58,7 @@ func (s *BudgetService) DeleteBudget(id int64) error {
 	return nil
 }
 
+
 func (s *BudgetService) AddAllocation(budgetID, categoryID, expectedCost int64) error {
 
 	ba := models.BudgetAllocation {
@@ -86,6 +87,21 @@ func (s *BudgetService) UpdateAllocationCost(budgetID, categoryID, newCost int64
 	}
 
 	return nil
+}
+
+func (s *BudgetService) DeleteAllocation(id int64) error {
+	if err := persistence.DeleteAllocation(id, nil); err != nil {
+		return fmt.Errorf("DeleteBudget: %w", err)
+	}
+	return nil
+}
+
+func (s *BudgetService) ListAllocations(budgetID int64) ([]models.BudgetAllocation, error) {
+	if allocs, err := persistence.ListAllocations(budgetID, nil); err != nil {
+		return allocs, fmt.Errorf("ListAllocations: %w", err)
+	} else{
+		return allocs, nil
+	}
 }
 
 // Business Logic

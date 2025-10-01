@@ -14,8 +14,8 @@ export function GetGroup(arg1) {
   return window['go']['controllers']['GroupController']['GetGroup'](arg1);
 }
 
-export function ListGroups() {
-  return window['go']['controllers']['GroupController']['ListGroups']();
+export function ListGroups(arg1) {
+  return window['go']['controllers']['GroupController']['ListGroups'](arg1);
 }
 
 export function UpdateGroup(arg1) {

@@ -8,6 +8,6 @@ export function DeleteGroup(arg1:number):Promise<void>;
 
 export function GetGroup(arg1:number):Promise<models.Group>;
 
-export function ListGroups():Promise<Array<models.Group>>;
+export function ListGroups(arg1:number):Promise<Array<models.Group>>;
 
 export function UpdateGroup(arg1:models.Group):Promise<void>;

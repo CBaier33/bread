@@ -1,251 +1,138 @@
-package controllers
+package controllers_test
 
 import (
+	"bread/backend/controllers"
 	"bread/backend/persistence"
 	"testing"
-	"strconv"
 )
 
-func TestBudget(t *testing.T) {
+func TestControllers(t *testing.T) {
 	db := persistence.SetupTestDB(t)
 	defer db.Close()
-	persistence.DB = db 
+	persistence.DB = db
 
+	// Instantiate controllers using their constructors
+	bc := controllers.NewBudgetController()
+	gc := controllers.NewGroupController()
+	cc := controllers.NewCategoryController()
+	pc := controllers.NewProjectController()
+	tc := controllers.NewTransactionController()
+	tgc := controllers.NewTagController()
+	ac := controllers.NewAnalysisController()
 
-	bc := NewBudgetController()
-
-	// Optional: create a budget/group/category if needed
-	budget1, err := bc.CreateBudget("Test", "2025-09-01", "2025-09-31")
-
+	// --- Projects ---
+	project1, err := pc.CreateProject("Personal", "for budgeting income", "USD")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	budget2, err := bc.CreateBudget("test2", "2025-01-01", "2025-06-31")
+	// --- Budgets ---
+	budget1, err := bc.CreateBudget(project1.ID, "Test", "2025-09-01", "2025-09-30")
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	budget2, err := bc.CreateBudget(project1.ID, "test2", "2025-01-01", "2025-06-30")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	budget2.Name = "bread"
-
-	err = bc.UpdateBudget(budget2)
-	if err != nil {
+	if err := bc.UpdateBudget(budget2); err != nil {
 		t.Fatal(err)
 	}
 
-	err = bc.DeleteBudget(budget1.ID)
+	if err := bc.DeleteBudget(budget2.ID); err != nil {
+		t.Fatal(err)
+	}
 
-	budgets, err := bc.ListBudgets()
-
+	budgets, err := bc.ListBudgets(project1.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(budgets) != 1 {
-    t.Errorf("expected budges length of 1, got %d", len(budgets))
+		t.Errorf("expected budgets length 1, got %d", len(budgets))
 	}
 
-	nextBudget, _ := bc.GetBudget(budget2.ID)
-
+	// --- Groups & Categories ---
+	group1, err := gc.CreateGroup(project1.ID, "Test", "test group")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if nextBudget.Name != "bread" {
-		t.Errorf("expected budget name to be 'bread', got " + nextBudget.Name)
+	category1, err := cc.CreateCategory(group1.ID, "TestCategory", "Desc", true)
+	if err != nil {
+		t.Fatal(err)
 	}
-	
 
+	// --- Budget Allocations ---
+	if err := bc.AddAllocation(budget1.ID, category1.ID, 200); err != nil {
+		t.Fatal(err)
+	}
+
+	budget3ID, err := bc.DuplicateBudget(project1.ID, budget1.ID, "Dup Budget", "2025-10-01", "2025-10-31")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	budget3Allocs, err := bc.ListAllocations(budget3ID)
+	budget1Allocs, err := bc.ListAllocations(budget1.ID)
+	if len(budget1Allocs) != len(budget3Allocs) || len(budget1Allocs) == 0 {
+		t.Errorf("DuplicateBudget failed: Budget1 %d vs Budget3 %d", len(budget1Allocs), len(budget3Allocs))
+	}
+
+	// --- Transactions ---
+	_, err = tc.CreateTransaction(project1.ID, nil, "burger", 100, "2025-10-13", true, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tx2, err := tc.CreateTransaction(project1.ID, &category1.ID, "grocery", 100, "2025-10-20", true, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// --- Tags ---
+	tag1, err := tgc.CreateTag(project1.ID, "publix")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := tgc.CreateTransactionTag(tx2.ID, tag1.ID); err != nil {
+		t.Fatal(err)
+	}
+
+	tags, err := tgc.GetTags(tx2.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tags) == 0 {
+		t.Errorf("expected 1 tag for transaction, got 0")
+	}
+
+	// --- Analysis ---
+	totalCost, err := ac.BudgetTotalCost(budget3ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if totalCost != 200 {
+		t.Errorf("expected total cost 200, got %d", totalCost)
+	}
+
+	totalProjectedCost, err := ac.BudgetProjectedCost(budget1.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if totalProjectedCost != 200 {
+		t.Errorf("expected projected cost 200, got %d", totalProjectedCost)
+	}
+
+	allocCost, err := ac.AllocationCost(budget3ID, category1.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if allocCost != 100 {
+		t.Errorf("expected allocation cost 100, got %d", allocCost)
+	}
 }
 
-func TestGroup(t *testing.T) {
-	db := persistence.SetupTestDB(t)
-	defer db.Close()
-	persistence.DB = db 
-
-	bc := NewBudgetController()
-
-	// Optional: create a budget/group/category if needed
-	budget1, err := bc.CreateBudget("Test", "2025-09-01", "2025-09-31")
-	budgetid := budget1.ID
-
-	gc := NewGroupController()
-
-	group1, err := gc.CreateGroup(budgetid, "Test Group", "description")
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	group2, err := gc.CreateGroup(budgetid, "Test Group 2", "description")
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	group2.Name = "bread"
-
-	err = gc.UpdateGroup(group2)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = gc.DeleteGroup(group1.ID)
-
-	groups, err := gc.ListGroups()
-
-	if len(groups) != 1 {
-    t.Errorf("expected budges length of 1, got %d", len(groups))
-	}
-
-	nextGroup, _ := gc.GetGroup(group2.ID)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if nextGroup.Name != "bread" {
-		t.Errorf("expected budget name to be 'bread', got " + nextGroup.Name)
-	}
-
-}
-
-func TestCategory(t *testing.T) {
-	db := persistence.SetupTestDB(t)
-	defer db.Close()
-	persistence.DB = db 
-
-	bc := NewBudgetController()
-
-	// Optional: create a budget/group/category if needed
-	budget1, err := bc.CreateBudget("Test", "2025-09-01", "2025-09-31")
-	budgetid := budget1.ID
-
-	gc := NewGroupController()
-	group1, err := gc.CreateGroup(budgetid, "Test Group", "description")
-	groupid := group1.ID
-
-	cg := NewCategoryController()
-
-	category1, err := cg.CreateCategory(budgetid, groupid, "Test Category", "description", 1000, 0)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	category2, err := cg.CreateCategory(budgetid, groupid, "Test Category", "description", 200, 0)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	category2.Expected += 1
-
-	err = cg.UpdateCategory(category2)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = cg.DeleteCategory(category1.ID)
-
-	categories, err := cg.ListCategories()
-
-	if len(categories) != 1 {
-    t.Errorf("expected budges length of 1, got %d", len(categories))
-	}
-
-	nextCategory, _ := cg.GetCategory(category2.ID)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if nextCategory.Expected != 201 {
-		t.Errorf("expected category amount to be 201, got " + strconv.FormatInt(nextCategory.Expected, 10))
-	}
-
-}
-
-func TestTransaction(t *testing.T) {
-	db := persistence.SetupTestDB(t)
-	defer db.Close()
-	persistence.DB = db 
-
-	bc := NewBudgetController()
-
-	// Optional: create a budget/group/category if needed
-	budget1, err := bc.CreateBudget("Test", "2025-09-01", "2025-09-31")
-	budgetid := budget1.ID
-
-	gc := NewGroupController()
-	group1, err := gc.CreateGroup(budgetid, "Test Group", "description")
-	groupid := group1.ID
-
-	cg := NewCategoryController()
-
-	category1, err := cg.CreateCategory(budgetid, groupid, "Test Category Food", "description", 1000, 0)
-	category1Id := category1.ID
-
-	tc := NewTransactionController()
-
-	transaction1, err := tc.CreateTransaction("butter-1", 100, "2025-09-22", "", "", budgetid, &groupid, &category1Id)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// UnGrouped category
-	transaction2, err := tc.CreateTransaction("butter", 200, "2025-09-21", "", "", budgetid, nil, nil)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	transaction3, err := tc.CreateTransaction("test", 200, "2025-09-23", "", "", budgetid, &groupid, &category1Id)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	transaction2.Description = "bread"
-
-	err = tc.UpdateTransaction(transaction2)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	transaction1.Amount = 20
-
-	err = tc.UpdateTransaction(transaction1)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	otherTransaction, err := tc.GetTransaction(transaction1.ID)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if transaction1.Amount != 20 {
-    t.Errorf("expected transaction amount of 20, got %d", otherTransaction.Amount)
-	}
-
-	err = tc.DeleteTransaction(transaction3.ID)
-
-	transactions, err := tc.ListTransactions(&category1Id)
-
-	if len(transactions) != 1 {
-    t.Errorf("expected budges length of 1, got %d", len(transactions))
-	}
-
-	nextTransaction, _ := tc.GetTransaction(transaction2.ID)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if nextTransaction.Description != "bread" {
-		t.Errorf("expected budget name to be 'bread', got " + nextTransaction.Description)
-	}
-
-}

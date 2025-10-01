@@ -15,31 +15,35 @@ func NewTransactionController() *TransactionController {
 	}
 }
 
+// CreateTransaction inserts a new transaction and returns it
 func (c *TransactionController) CreateTransaction(
+	projectID int64,
+	categoryID *int64,
 	desc string,
 	amount int64,
 	date string,
+	expenseType bool,
 	notes string,
-	tags string,
-	budgetID int64,
-	groupID *int64,
-	categoryID *int64,
 ) (models.Transaction, error) {
-	return c.service.CreateTransaction(desc, amount, date, notes, tags, budgetID, groupID, categoryID)
+	return c.service.CreateTransaction(projectID, categoryID, desc, amount, date, expenseType, notes)
 }
 
+// GetTransaction retrieves a transaction by ID
 func (c *TransactionController) GetTransaction(id int64) (models.Transaction, error) {
 	return c.service.GetTransaction(id)
 }
 
-func (c *TransactionController) ListTransactions(categoryID *int64) ([]models.Transaction, error) {
-	return c.service.ListTransactions(categoryID)
+// ListTransactions returns all transactions (optionally filtered by group or category)
+func (c *TransactionController) ListTransactions(projectID int64, groupID, categoryID *int64) ([]models.Transaction, error) {
+	return c.service.ListTransactions(projectID, groupID, categoryID)
 }
 
+// UpdateTransaction updates an existing transaction
 func (c *TransactionController) UpdateTransaction(t models.Transaction) error {
 	return c.service.UpdateTransaction(t)
 }
 
+// DeleteTransaction removes a transaction by ID
 func (c *TransactionController) DeleteTransaction(id int64) error {
 	return c.service.DeleteTransaction(id)
 }
