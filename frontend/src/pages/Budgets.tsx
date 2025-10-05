@@ -3,13 +3,14 @@ import { Button, Popover, TextArea, IconButton, Dialog, Text, TextField, Box, Fl
 import {PlusIcon, ChatBubbleIcon} from "@radix-ui/react-icons"
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import "./budget.css"
+import "../budget.css"
 import dayjs from "dayjs";
 
 import { ListBudgets, CreateBudget } from "../../wailsjs/go/controllers/BudgetController";
 import { models } from "../../wailsjs/go/models";
 
 const Budgets: React.FC = () => {
+  const [projectID, setProjectID] = useState<number>(0);
   const [budgets, setBudgets] = useState<models.Budget[]>([]);
   const [name, setName] = useState("");
   const [startDate, setStartDate] = React.useState<Date | undefined>();
@@ -18,7 +19,7 @@ const Budgets: React.FC = () => {
   // Fetch budgets from backend
   const fetchBudgets = async () => {
     try {
-      const result = await ListBudgets();
+      const result = await ListBudgets(projectID);
       console.log(result);
       setBudgets(result ?? []);
     } catch (err) {
@@ -44,7 +45,7 @@ const Budgets: React.FC = () => {
     const end = formatDate(endDate) ?? "";
 
     try {
-      await CreateBudget(name, start, end);
+      await CreateBudget(projectID, name, start, end);
       fetchBudgets();
 
       // Clear inputs
@@ -60,8 +61,8 @@ const Budgets: React.FC = () => {
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-4xl font-bold mb-4">Budgets</h2>
+    <div className="p-5"> 
+      <h1 className="text-4xl font-bold mb-4">Budgets</h1>
 
 
       {/* Budget List */}

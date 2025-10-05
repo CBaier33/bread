@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { ListTransactions, CreateTransaction } from "../../wailsjs/go/controllers/TransactionController"
 import { models } from "../../wailsjs/go/models";
+import ProjectSelect from "../components/ProjectSelect";
 
-const Transactions: React.FC = () => {
+interface TransactionProps {
+  globalProject: models.Project;
+  setGlobalProject: (project: models.Project) => void;
+  projectList: models.Project[];
+}
+
+const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProject, projectList }) => {
   const [transactions, setTransactions] = useState<models.Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [budgetID, setBudgetID] = useState<number>(1);
+  const [budgetID, setBudgetID] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
   const [date, setDate] = useState("2003-05-02");
   const [notes, setNotes] = useState("");
-  const [tags, setTags] = useState("");
+  const [expenseType, setExpenseType] = useState(true);
 
   const loadTransactions = async () => {
     try {
-      const txs = await ListTransactions(null);
+      const txs = await ListTransactions(globalProject.id, null, null);
       setTransactions(txs ?? []); // types now match
     } catch (err) {
       console.error("Error fetching transactions:", err);
@@ -25,11 +32,11 @@ const Transactions: React.FC = () => {
 
   useEffect(() => {
     loadTransactions();
-  }, []);
+  }, [globalProject]);
 
   const handleAdd = async () => {
     try {
-      await CreateTransaction(description, amount, date, notes, tags, budgetID, null, null);
+      await CreateTransaction(globalProject.id, null, description, amount, date, expenseType, notes, );
       setDescription("");
       setDate("2003-05-02");
       setNotes("")
@@ -43,12 +50,14 @@ const Transactions: React.FC = () => {
   if (loading) return <div>Loading transactions...</div>;
 
   return (
-    <div>
+    <div className="p-4">
       <h1>Transactions</h1>
+      <h2>Current Project: {globalProject.name}</h2>
+      <ProjectSelect globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projectList}/>
       <ul>
         {transactions.map((tx) => (
           <li key={tx.id}>
-            {tx.description} - ${tx.amount} - ${tx.date} - ${tx.category_name} - {tx.created_at}
+            {tx.description} - ${tx.amount} - ${tx.date} - {tx.created_at}
           </li>
         ))}
       </ul>
