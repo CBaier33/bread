@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { ListTransactions, CreateTransaction } from "../../wailsjs/go/controllers/TransactionController"
 import { models } from "../../wailsjs/go/models";
 import ProjectSelect from "../components/ProjectSelect";
+import TransactionCard from "../components/TransactionCard";
+import NewTransactionPrompt from "../components/NewTransactionPrompt";
 
 interface TransactionProps {
   globalProject: models.Project;
@@ -12,10 +14,9 @@ interface TransactionProps {
 const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProject, projectList }) => {
   const [transactions, setTransactions] = useState<models.Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [budgetID, setBudgetID] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<number>(0);
-  const [date, setDate] = useState("2003-05-02");
+  const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [expenseType, setExpenseType] = useState(true);
 
@@ -34,59 +35,41 @@ const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProj
     loadTransactions();
   }, [globalProject]);
 
-  const handleAdd = async () => {
+  const handleCreateTransaction = async (description: string, amount: number, date: string, expenseType: boolean, notes: string, tags:string) => {
     try {
-      await CreateTransaction(globalProject.id, null, description, amount, date, expenseType, notes, );
+      await CreateTransaction(globalProject.id, null, description, amount, date, expenseType, notes);
       setDescription("");
       setDate("2003-05-02");
-      setNotes("")
+      setNotes("");
+      setExpenseType(true);
       setAmount(0);
       loadTransactions();
     } catch (err) {
       console.error("Error adding transaction:", err);
     }
+
+    console.log(tags);
   };
 
   if (loading) return <div>Loading transactions...</div>;
 
+
   return (
-    <div className="p-4">
-      <h1>Transactions</h1>
-      <h2>Current Project: {globalProject.name}</h2>
+    <div className="p-5">
+      <div className="mb-4 flex gap-2 items-center w-full">
+        <h1 className="text-4xl font-bold">Transactions</h1>
       <ProjectSelect globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projectList}/>
-      <ul>
-        {transactions.map((tx) => (
-          <li key={tx.id}>
-            {tx.description} - ${tx.amount} - ${tx.date} - {tx.created_at}
-          </li>
+        <NewTransactionPrompt onSave={handleCreateTransaction}/>
+      </div>
+
+      <div className="w-full gap-7">
+        {transactions.map((p) => (
+          <TransactionCard
+            key={p.id}
+            transaction={p}
+            width=""
+          />
         ))}
-      </ul>
-      <div>
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(parseFloat(e.target.value))}
-        />
-        <input
-          type="text"
-          placeholder="Date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-        <button onClick={handleAdd}>Add Transaction</button>
       </div>
     </div>
   );
