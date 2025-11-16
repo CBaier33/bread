@@ -30,6 +30,10 @@ func (c *CategoryController) ListCategories(groupID int64) ([]models.Category, e
 	return c.service.ListCategories(groupID)
 }
 
+func (c *CategoryController) ListProjectCategories(projectID int64) ([]models.Category, error) {
+	return c.service.ListProjectCategories(projectID)
+}
+
 // UpdateCategory updates a category's data
 func (c *CategoryController) UpdateCategory(cat models.Category) error {
 	return c.service.UpdateCategory(cat)

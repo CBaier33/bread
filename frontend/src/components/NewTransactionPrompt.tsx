@@ -3,19 +3,22 @@ import { Dialog, Popover, Text, TextField, Flex, Button, IconButton, SegmentedCo
 import { PlusIcon } from "@radix-ui/react-icons";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import dayjs from "dayjs";
 import { models } from "../../wailsjs/go/models";
+import CategorySelect from "./CategorySelect";
 
 interface NewTransactionPromptProps {
   onSave: (description: string, amount: number, date: Date | undefined, expenseType: boolean, notes: string, tags: string) => Promise<void> | void;
+  globalCategory: models.Category;
+  setGlobalCategory: (project: models.Category) => void;
+  categoryList: models.Category[];
 }
 
-const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave }) => {
+const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave, globalCategory, setGlobalCategory, categoryList }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
   const [displayAmount, setDisplayAmount] = useState((0 / 100).toFixed(2));
   const [expenseType, setExpenseType] = useState(true);
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = React.useState<Date | undefined>();
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState("");
 
@@ -23,8 +26,11 @@ const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave }) =
     await onSave(description, amount, date, expenseType, notes, tags);
 
     setDescription("");
+    setDate(new Date())
     setAmount(0);
     setDisplayAmount((0 / 100).toFixed(2))
+    setExpenseType(true)
+    setNotes("")
   };
 
   const handleAmount = async (value: string) => {
@@ -81,10 +87,10 @@ const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave }) =
                   size="2"
                 />
                 <SegmentedControl.Root 
-                  defaultValue="withdrawl"
+                  defaultValue={expenseType ? "withdrawl" : "deposit"}
                   onValueChange={handleExpense}>
                   <SegmentedControl.Item value="withdrawl">Withdrawl</SegmentedControl.Item>
-                  <SegmentedControl.Item value="depost">Deposit</SegmentedControl.Item>
+                  <SegmentedControl.Item value="deposit">Deposit</SegmentedControl.Item>
                 </SegmentedControl.Root>
               </Flex>
             </label>
@@ -104,7 +110,6 @@ const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave }) =
                     mode="single"
                     selected={date}
                     onSelect={setDate}
-                    numberOfMonths={1}
                   />
 
                   <Popover.Close>
@@ -114,6 +119,18 @@ const NewTransactionPrompt: React.FC<NewTransactionPromptProps> = ({ onSave }) =
                   </Popover.Close>
               </Popover.Content>
             </Popover.Root>
+            </label>
+            <label>
+              <Text as="div" size="2" mb="1" weight="bold">
+                Category
+              </Text>
+              <Flex width="20rem" asChild>
+                <CategorySelect 
+                  globalCategory={globalCategory}
+                  setGlobalCategory={setGlobalCategory}
+                  categoryList={categoryList}
+                />
+              </Flex>
             </label>
             <label>
               <Text as="div" size="2" mb="1" weight="bold">

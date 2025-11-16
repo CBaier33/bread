@@ -18,6 +18,10 @@ export function ListCategories(arg1) {
   return window['go']['controllers']['CategoryController']['ListCategories'](arg1);
 }
 
+export function ListProjectCategories(arg1) {
+  return window['go']['controllers']['CategoryController']['ListProjectCategories'](arg1);
+}
+
 export function UpdateCategory(arg1) {
   return window['go']['controllers']['CategoryController']['UpdateCategory'](arg1);
 }

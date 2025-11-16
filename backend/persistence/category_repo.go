@@ -54,9 +54,44 @@ func GetCategory(id int64, db runner) (models.Category, error) {
 	return c, nil
 }
 
+func ListProjectCategories(projectID int64, db runner) ([]models.Category, error) {
+
+	if db == nil {
+		db = DB
+	}
+	rows, err := db.Query(`
+	 SELECT c.id, c.group_id, c.name, c.description, c.expense_type, c.created_at, c.updated_at
+   FROM categories c
+   JOIN groups g on c.group_id = g.id
+   WHERE g.project_id = ?`, projectID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var categories []models.Category
+	for rows.Next() {
+		var c models.Category
+		if err := rows.Scan(
+			&c.ID,
+			&c.GroupID,
+			&c.Name,
+			&c.Description,
+			&c.ExpenseType,
+			&c.CreatedAt,
+			&c.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		categories = append(categories, c)
+	}
+
+	return categories, nil
+}
+
 // ListCategories lists all categories.
 func ListCategories(groupID int64, db runner) ([]models.Category, error) {
-
 
 	if db == nil {
 		db = DB

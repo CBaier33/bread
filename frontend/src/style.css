@@ -7,11 +7,12 @@ html, body, #app {
     padding: 0;
     height: 100%;
     width: 100%;
-    overflow: hidden; /* completely disable scrolling */
+    overflow: hidden;  /* completely disable scrolling */
 }
 
 html {
-    background-color: rgba(27, 38, 54, 1);
+    /*background-color: rgba(27, 38, 54, 1);*/
+    background-color: white;
     color: white;
 }
 

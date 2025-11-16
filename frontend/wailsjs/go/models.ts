@@ -143,6 +143,7 @@ export namespace models {
 	    description: string;
 	    project_id: number;
 	    category_id?: number;
+	    category_name: string;
 	    date: string;
 	    amount: number;
 	    expense_type: boolean;
@@ -160,6 +161,7 @@ export namespace models {
 	        this.description = source["description"];
 	        this.project_id = source["project_id"];
 	        this.category_id = source["category_id"];
+	        this.category_name = source["category_name"];
 	        this.date = source["date"];
 	        this.amount = source["amount"];
 	        this.expense_type = source["expense_type"];

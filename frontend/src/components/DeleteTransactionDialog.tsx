@@ -1,14 +1,13 @@
 import React from "react";
-import { Button, Flex } from "@radix-ui/themes";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
-interface DeleteProjectDialogProps {
+interface DeleteTransactionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => Promise<void> | void;
 }
 
-const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({ open, onOpenChange, onConfirm }) => {
+const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = ({ open, onOpenChange, onConfirm }) => {
   const handleConfirm = async () => {
     await onConfirm();
     onOpenChange(false);
@@ -24,7 +23,7 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({ open, onOpenC
 				</AlertDialog.Title>
 				<AlertDialog.Description className="mb-5 mt-[15px] text-[15px] leading-normal text-mauve11">
 					This action cannot be undone. This will permanently delete your
-					project and remove all related budgets and transactions.
+					transaction.
 				</AlertDialog.Description>
 				<div className="flex justify-end gap-[25px]">
 					<AlertDialog.Cancel asChild>
@@ -34,7 +33,7 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({ open, onOpenC
 					</AlertDialog.Cancel>
 					<AlertDialog.Action asChild>
 						<button className="inline-flex h-[35px] items-center justify-center rounded bg-red4 px-[15px] font-medium leading-none text-red11 outline-none outline-offset-1 hover:bg-red5 focus-visible:outline-2 focus-visible:outline-red7 select-none" onClick={handleConfirm}>
-							Yes, delete project
+							Yes, delete transaction
 						</button>
 					</AlertDialog.Action>
 				</div>
@@ -44,5 +43,5 @@ const DeleteProjectDialog: React.FC<DeleteProjectDialogProps> = ({ open, onOpenC
   );
 };
 
-export default DeleteProjectDialog;
+export default DeleteTransactionDialog;
 

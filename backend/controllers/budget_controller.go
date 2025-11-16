@@ -16,8 +16,8 @@ func NewBudgetController() *BudgetController {
 }
 
 // CreateBudget creates a new budget
-func (c *BudgetController) CreateBudget(periodID int64, name, periodStart, periodEnd string) (models.Budget, error) {
-	return c.service.CreateBudget(periodID, name, periodStart, periodEnd)
+func (c *BudgetController) CreateBudget(periodID int64, name, periodStart, periodEnd string, expectedIncome, startingBalance int64) (models.Budget, error) {
+	return c.service.CreateBudget(periodID, name, periodStart, periodEnd, expectedIncome, startingBalance)
 }
 
 // GetBudget retrieves a budget by ID

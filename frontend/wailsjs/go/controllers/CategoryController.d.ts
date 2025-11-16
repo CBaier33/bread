@@ -10,4 +10,6 @@ export function GetCategoryByID(arg1:number):Promise<models.Category>;
 
 export function ListCategories(arg1:number):Promise<Array<models.Category>>;
 
+export function ListProjectCategories(arg1:number):Promise<Array<models.Category>>;
+
 export function UpdateCategory(arg1:models.Category):Promise<void>;

@@ -9,12 +9,14 @@ import (
 
 type BudgetService struct{}
 
-func (s *BudgetService) CreateBudget(periodID int64, name, periodStart, periodEnd string) (models.Budget, error) {
+func (s *BudgetService) CreateBudget(periodID int64, name, periodStart, periodEnd string, expectedIncome, startingBalance int64) (models.Budget, error) {
 	b := models.Budget{
 		ProjectID:   periodID,
 		Name:        name,
 		PeriodStart: periodStart,
 		PeriodEnd:   periodEnd,
+		ExpectedIncome: expectedIncome,
+		StartingBalance: startingBalance,
 	}
 
 	id, err := persistence.InsertBudget(b, nil)

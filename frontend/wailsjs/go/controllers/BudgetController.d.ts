@@ -4,7 +4,7 @@ import {models} from '../models';
 
 export function AddAllocation(arg1:number,arg2:number,arg3:number):Promise<void>;
 
-export function CreateBudget(arg1:number,arg2:string,arg3:string,arg4:string):Promise<models.Budget>;
+export function CreateBudget(arg1:number,arg2:string,arg3:string,arg4:string,arg5:number,arg6:number):Promise<models.Budget>;
 
 export function DeleteAllocation(arg1:number):Promise<void>;
 
