@@ -46,10 +46,22 @@ func ListTransactions(projectID int64, groupID, categoryID *int64, db runner) ([
 
 	if categoryID != nil {
 		query = `
-			SELECT id, description, project_id, category_id, date, amount, expense_type, notes, created_at, updated_at
-			FROM transactions
-			WHERE project_id = ? AND category_id = ?
-			ORDER BY created_at DESC;
+			SELECT 
+				t.id, 
+				t.description, 
+				t.project_id, 
+				t.category_id, 
+				c.name as category_name,
+				t.date, 
+				t.amount, 
+				t.expense_type, 
+				t.notes, 
+				t.created_at, 
+				t.updated_at
+			FROM transactions t
+			JOIN categories c on t.category_id = c.id
+			WHERE t.project_id = ? AND t.category_id = ?
+			ORDER BY t.created_at DESC;
 		`
 		accountIDs = []interface{}{projectID, *categoryID}
 
@@ -58,21 +70,44 @@ func ListTransactions(projectID int64, groupID, categoryID *int64, db runner) ([
 	if groupID != nil {
 
 		query = `
-			SELECT t.id, t.description, t.project_id, t.category_id, t.date, t.amount, t.expense_type, t.notes, t.created_at, t.updated_at
+			SELECT 
+			  t.id, 
+			  t.description, 
+			  t.project_id, 
+			  t.category_id, 
+				c.name as category_name,
+			  t.date, 
+			  t.amount, 
+			  t.expense_type, 
+			  t.notes, 
+			  t.created_at, 
+			  t.updated_at
 			FROM transactions t
 			JOIN categories c ON c.id = t.category_id
 			WHERE t.project_id = ? AND c.group_id = ?
-			ORDER BY created_at DESC;
+			ORDER BY t.created_at DESC;
 		`
 		accountIDs = []interface{}{projectID, groupID}
 
 	} else {
 
 		query = `
-			SELECT id, description, project_id, category_id, date, amount, expense_type, notes, created_at, updated_at
-			FROM transactions
-			WHERE project_id = ?
-			ORDER BY created_at DESC;
+			SELECT 
+			  t.id, 
+			  t.description, 
+			  t.project_id, 
+			  t.category_id, 
+				c.name as category_name,
+			  t.date, 
+			  t.amount, 
+			  t.expense_type, 
+			  t.notes, 
+			  t.created_at, 
+			  t.updated_at
+			FROM transactions t
+			JOIN categories c ON c.id = t.category_id
+			WHERE t.project_id = ?
+			ORDER BY t.created_at DESC;
 		`
 		accountIDs = []interface{}{projectID}
 	}
@@ -91,6 +126,7 @@ func ListTransactions(projectID int64, groupID, categoryID *int64, db runner) ([
 			&t.Description,
 			&t.ProjectID,
 			&t.CategoryID,
+			&t.CategoryName,
 			&t.Date,
 			&t.Amount,
 			&t.ExpenseType,
@@ -121,8 +157,19 @@ func GetTransaction(id int64, db runner) (models.Transaction, error) {
 	var t models.Transaction
 	query := `
 		SELECT 
-			id, description, project_id, category_id, date, amount, expense_type, notes, created_at, updated_at
-		FROM transactions
+			t.id, 
+			t.description, 
+			t.project_id, 
+			t.category_id,  
+			c.name as category_name,
+			t.date, 
+			t.amount, 
+			t.expense_type, 
+			t.notes, 
+			t.created_at, 
+			t.updated_at
+		FROM transactions t
+		JOIN categories c ON t.category_id = c.id
 		WHERE id = ?;
 	`
 	row := db.QueryRow(query, id)
@@ -131,6 +178,7 @@ func GetTransaction(id int64, db runner) (models.Transaction, error) {
 		&t.Description,
 		&t.ProjectID,
 		&t.CategoryID,
+		&t.CategoryName,
 		&t.Date,
 		&t.Amount,
 		&t.ExpenseType,

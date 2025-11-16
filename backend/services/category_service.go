@@ -32,6 +32,10 @@ func (s *CategoryService) GetCategoryByID(id int64) (models.Category, error) {
 	return c, nil
 }
 
+func (s *CategoryService) ListProjectCategories(projectID int64) ([]models.Category, error) {
+	return persistence.ListProjectCategories(projectID, nil)
+}
+
 func (s *CategoryService) ListCategories(groupID int64) ([]models.Category, error) {
 	return persistence.ListCategories(groupID, nil)
 }

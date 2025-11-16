@@ -119,4 +119,3 @@ func DeleteProject(id int64, db runner) error {
 	_, err := db.Exec(`DELETE FROM projects WHERE id = ?`, id)
 	return err
 }
-
