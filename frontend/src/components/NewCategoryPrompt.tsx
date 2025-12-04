@@ -4,15 +4,14 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import "react-day-picker/dist/style.css";
 import { models } from "../../wailsjs/go/models";
 import BudgetSelect from "./BudgetSelect";
+import { GlobalStore } from "../hooks/useGlobalStore";
 
 interface NewCategoryPromptProps {
   onSave: (name: string, description: string, expenseType: boolean, expected: number) => Promise<void> | void;
-  globalBudget: models.Budget;
-  setGlobalBudget: (group: models.Budget) => void;
-  budgetList: models.Budget[];
+  projectStore: GlobalStore<models.Project>;
 }
 
-const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ onSave, globalBudget, setGlobalBudget, budgetList }) => {
+const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ onSave, projectStore }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [expenseType, setExpenseType] = useState(true);
@@ -101,7 +100,7 @@ const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ onSave, globalBud
                 </SegmentedControl.Root>
               </Flex>
             </label>
-            <BudgetSelect globalBudget={globalBudget} setGlobalBudget={setGlobalBudget} budgetList={budgetList}/>
+            {/*<BudgetSelect bubudgets={null}/>*/}
           </Flex>
             <Dialog.Close>
               <Flex gap="3" mt="4" justify="end">

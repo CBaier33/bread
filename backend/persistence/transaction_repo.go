@@ -33,92 +33,65 @@ func InsertTransaction(t models.Transaction, db runner) (int64, error) {
 }
 
 // GetTransactions returns all transactions
-func ListTransactions(projectID int64, groupID, categoryID *int64, db runner) ([]models.Transaction, error) {
-
+func ListTransactions(projectID int64, groupID, categoryID *int64, startDate, endDate *string, db runner) ([]models.Transaction, error) {
 	if db == nil {
 		db = DB
 	}
 
-	var (
-		query string
-		accountIDs  []interface{}
-	)
+	query := `
+		SELECT 
+			t.id, 
+			t.description, 
+			t.project_id, 
+			t.category_id, 
+			c.name as category_name,
+			t.date, 
+			t.amount, 
+			t.Expense_type, 
+			t.notes, 
+			t.created_at, 
+			t.updated_at
+		FROM transactions t
+		JOIN categories c on t.category_id = c.id
+		WHERE 1=1
+	`
+
+	var params []interface{}
+
+	// Always apply project_id first — no overwriting
+	query += ` AND t.project_id = ? `
+	params = append(params, projectID)
 
 	if categoryID != nil {
-		query = `
-			SELECT 
-				t.id, 
-				t.description, 
-				t.project_id, 
-				t.category_id, 
-				c.name as category_name,
-				t.date, 
-				t.amount, 
-				t.expense_type, 
-				t.notes, 
-				t.created_at, 
-				t.updated_at
-			FROM transactions t
-			JOIN categories c on t.category_id = c.id
-			WHERE t.project_id = ? AND t.category_id = ?
-			ORDER BY t.created_at DESC;
-		`
-		accountIDs = []interface{}{projectID, *categoryID}
-
+		query += ` AND t.category_id = ? `
+		params = append(params, *categoryID)
 	}
 
 	if groupID != nil {
-
-		query = `
-			SELECT 
-			  t.id, 
-			  t.description, 
-			  t.project_id, 
-			  t.category_id, 
-				c.name as category_name,
-			  t.date, 
-			  t.amount, 
-			  t.expense_type, 
-			  t.notes, 
-			  t.created_at, 
-			  t.updated_at
-			FROM transactions t
-			JOIN categories c ON c.id = t.category_id
-			WHERE t.project_id = ? AND c.group_id = ?
-			ORDER BY t.created_at DESC;
-		`
-		accountIDs = []interface{}{projectID, groupID}
-
-	} else {
-
-		query = `
-			SELECT 
-			  t.id, 
-			  t.description, 
-			  t.project_id, 
-			  t.category_id, 
-				c.name as category_name,
-			  t.date, 
-			  t.amount, 
-			  t.expense_type, 
-			  t.notes, 
-			  t.created_at, 
-			  t.updated_at
-			FROM transactions t
-			JOIN categories c ON c.id = t.category_id
-			WHERE t.project_id = ?
-			ORDER BY t.created_at DESC;
-		`
-		accountIDs = []interface{}{projectID}
+		query += ` AND c.group_id = ? `
+		params = append(params, *groupID)
 	}
 
-	rows, err := db.Query(query, accountIDs...)
+	if startDate != nil {
+		query += ` AND t.date >= ? `
+		params = append(params, *startDate)
+	}
+
+	if endDate != nil {
+		query += ` AND t.date <= ? `
+		params = append(params, *endDate)
+	}
+
+	query += ` ORDER BY t.created_at DESC `
+
+	rows, err := db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var transactions []models.Transaction
+	var out []models.Transaction
+
 	for rows.Next() {
 		var t models.Transaction
 		if err := rows.Scan(
@@ -136,14 +109,10 @@ func ListTransactions(projectID int64, groupID, categoryID *int64, db runner) ([
 		); err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, t)
+		out = append(out, t)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return transactions, nil
+	return out, rows.Err()
 }
 
 // GetTransaction returns a single transaction by ID

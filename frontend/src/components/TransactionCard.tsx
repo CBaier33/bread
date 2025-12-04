@@ -5,6 +5,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { models } from "../../wailsjs/go/models";
 import DeleteTransactionDialog from "./DeleteTransactionDialog";
 import EditTransaction from "./EditTransaction";
+import dayjs from "dayjs";
 
 interface TransactionCardProps {
   transaction: models.Transaction;
@@ -102,7 +103,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, width, o
               bg-blue-100 text-blue-700
             "
             >
-            {transaction.date}
+            {dayjs(transaction.date).format("MM/DD/YYYY")}
           </div>
         </div>
       </div>

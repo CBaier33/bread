@@ -1,24 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { models } from "../../wailsjs/go/models";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { GlobalStore } from "../hooks/useGlobalStore";
+import { ListBudgets } from "../../wailsjs/go/controllers/BudgetController";
 
 interface BudgetSelectProps {
-  globalBudget: models.Budget;
-  budgetList: models.Budget[];
-  setGlobalBudget: (budget: models.Budget) => void;
+  budget: models.Budget | null;
+  budgets: models.Budget[];
+  setBudget: (budget: models.Budget) => void; 
 }
 
 const BudgetSelect: React.FC<BudgetSelectProps> = ({
-  globalBudget,
-  budgetList,
-  setGlobalBudget,
+  budget,
+  budgets,
+  setBudget,
 }) => {
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          {globalBudget?.name ?? "Select a budget"}
+          {budget?.name}
           <ChevronDownIcon className="h-4 w-4 opacity-70" />
         </button>
       </DropdownMenu.Trigger>
@@ -29,23 +32,23 @@ const BudgetSelect: React.FC<BudgetSelectProps> = ({
           className="min-w-[160px] rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
         >
           <DropdownMenu.RadioGroup
-            value={globalBudget?.name}
+            value={budget?.name}
             onValueChange={(name) => {
-              const proj = budgetList.find((p) => p.name === name);
-              if (proj) setGlobalBudget(proj);
+              const proj = budgets.find((p) => p.name === name);
+              if (proj) setBudget(proj);
             }}
             className="flex flex-col gap-0.5"
           >
-            {budgetList.map((budget) => (
+            {budgets.map((b) => (
               <DropdownMenu.RadioItem
-                key={budget.name}
-                value={budget.name}
+                key={b.name}
+                value={b.name}
                 className="budget flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
               >
                 <DropdownMenu.ItemIndicator>
                   <CheckIcon className="h-4 w-4 text-blue-500" />
                 </DropdownMenu.ItemIndicator>
-                <span className="capitalize">{budget.name}</span>
+                <span className="capitalize">{b.name}</span>
               </DropdownMenu.RadioItem>
             ))}
           </DropdownMenu.RadioGroup>

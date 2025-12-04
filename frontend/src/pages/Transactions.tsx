@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ListTransactions, CreateTransaction, UpdateTransaction, DeleteTransaction } from "../../wailsjs/go/controllers/TransactionController"
 import { models } from "../../wailsjs/go/models";
-import ProjectSelect from "../components/ProjectSelect";
 import TransactionCard from "../components/TransactionCard";
 import NewTransactionPrompt from "../components/NewTransactionPrompt";
 import { ListProjectCategories } from "../../wailsjs/go/controllers/CategoryController";
+import { useAppStore } from "../stores/useAppStore";
 
 interface TransactionProps {
-  globalProject: models.Project;
-  setGlobalProject: (project: models.Project) => void;
-  projectList: models.Project[];
-}
+  appStore: ReturnType<typeof useAppStore>;
+};
 
-const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProject, projectList }) => {
+const Transactions: React.FC<TransactionProps> = ({ appStore }) => {
   const [transactions, setTransactions] = useState<models.Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState("");
@@ -20,6 +18,14 @@ const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProj
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [notes, setNotes] = useState("");
   const [expenseType, setExpenseType] = useState(true);
+
+  const {
+    selectedProject: currentProject,
+    setSelectedProject: setProject,
+    projects: projects,
+
+    selectedBudget: currentBudget,
+  } = appStore;
 
   const [globalCategory, setGlobalCategory] = useState<models.Category>(new models.Category({
     id: 0, 
@@ -31,7 +37,7 @@ const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProj
 
   const fetchCategories = async () => {
     try {
-      const result = await ListProjectCategories(globalProject.id);
+      const result = await ListProjectCategories(currentProject?.id ?? 0);
       setCategories(result ?? []);
     } catch (err) {
       console.error("Failed to fetch projects:", err);
@@ -40,7 +46,7 @@ const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProj
 
   const fetchTransactions = async () => {
     try {
-      const txs = await ListTransactions(globalProject.id, null, null);
+      const txs = await ListTransactions(currentProject?.id ?? 0, null, null, currentBudget?.period_start, currentBudget?.period_end);
       setTransactions(txs ?? []); // types now match
     } catch (err) {
       console.error("Error fetching transactions:", err);
@@ -52,22 +58,45 @@ const Transactions: React.FC<TransactionProps> = ({ globalProject, setGlobalProj
   useEffect(() => {
     fetchTransactions();
     fetchCategories();
-  }, [globalProject]);
+  }, [currentProject?.id, currentBudget]);
 
-  const handleCreateTransaction = async (description: string, amount: number, date: Date | undefined, expense: boolean, notes: string, tags:string) => {
-    try {
-      await CreateTransaction(globalProject.id, globalCategory.id, description, amount, (date ?? new Date()).toLocaleDateString(), expense, notes);
-      setDescription("");
-      setNotes("");
-      setExpenseType(true);
-      setAmount(0);
-      fetchTransactions();
-    } catch (err) {
-      console.error("Error adding transaction:", err);
-    }
+const handleCreateTransaction = async (
+  description: string,
+  amount: number,
+  date: Date | undefined,
+  expense: boolean,
+  notes: string,
+  tags: string
+) => {
+  try {
+    const isoDate = (date ?? new Date()).toISOString();
 
-    console.log(tags);
-  };
+    await CreateTransaction(
+      currentProject?.id ?? 0,
+      globalCategory.id,
+      description,
+      amount,
+      isoDate,
+      expense,
+      notes
+    );
+
+    setDescription("");
+    setNotes("");
+    setGlobalCategory(new models.Category({
+      id: 0,
+      description: "Empty",
+    }));
+    setExpenseType(true);
+    setAmount(0);
+
+    fetchTransactions();
+  } catch (err) {
+    console.error("Error adding transaction:", err);
+  }
+
+  console.log(tags);
+};
 
   const handleEditTransaction = async (transaction: models.Transaction) => {
     try {

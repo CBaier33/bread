@@ -8,6 +8,6 @@ export function DeleteTransaction(arg1:number):Promise<void>;
 
 export function GetTransaction(arg1:number):Promise<models.Transaction>;
 
-export function ListTransactions(arg1:number,arg2:any,arg3:any):Promise<Array<models.Transaction>>;
+export function ListTransactions(arg1:number,arg2:any,arg3:any,arg4:any,arg5:any):Promise<Array<models.Transaction>>;
 
 export function UpdateTransaction(arg1:models.Transaction):Promise<void>;

@@ -10,24 +10,22 @@ import { ListCategories, CreateCategory } from "../../wailsjs/go/controllers/Cat
 import { models } from "../../wailsjs/go/models";
 import NewCategoryPrompt from "../components/NewCategoryPrompt";
 import GroupSelect from "../components/GroupSelect";
+import { GlobalStore } from "../hooks/useGlobalStore";
 
 interface CategoryProps {
-  globalGroup: models.Group;
-  setGlobalGroup: (group: models.Group) => void;
-  groupList: models.Group[];
-  globalBudget: models.Budget;
-  setGlobalBudget: (budget: models.Budget) => void;
-  budgetList: models.Budget[];
+  groupStore: GlobalStore<models.Group>;
+  projectStore: GlobalStore<models.Project>;
+   
 }
 
-const Categories: React.FC<CategoryProps> = ({ globalBudget, setGlobalBudget, budgetList, globalGroup, setGlobalGroup, groupList }) => {
+const Categories: React.FC<CategoryProps> = ({ groupStore, projectStore }) => {
   const [budgets, setCategories] = useState<models.Category[]>([]);
   const [name, setName] = useState("");
 
   // Fetch budgets from backend
   const fetchCategories = async () => {
     try {
-      const result = await ListCategories(globalGroup.id);
+      const result = await ListCategories(groupStore.selected.id);
       setCategories(result ?? []);
     } catch (err) {
       console.error("Failed to fetch budgets:", err);
@@ -36,13 +34,13 @@ const Categories: React.FC<CategoryProps> = ({ globalBudget, setGlobalBudget, bu
 
   useEffect(() => {
     fetchCategories();
-  }, [globalGroup]);
+  }, [groupStore.selected]);
 
 
   const handleCreateCategory = async (name: string, description: string,  expenseType: boolean) => {
 
     try {
-      await CreateCategory(globalGroup.id, name, description, expenseType);
+      await CreateCategory(groupStore.selected.id, name, description, expenseType);
     } catch (err) {
       console.error("Failed to create budget:", err);
     }
@@ -58,8 +56,8 @@ const Categories: React.FC<CategoryProps> = ({ globalBudget, setGlobalBudget, bu
     <div className="p-5"> 
       <div className="mb-4 flex gap-2 items-center w-full">
       <h1 className="text-4xl font-bold">Categories</h1>
-      <GroupSelect globalGroup={globalGroup} setGlobalGroup={setGlobalGroup} groupList={groupList}/>
-      <NewCategoryPrompt onSave={handleCreateCategory} globalBudget={globalBudget} setGlobalBudget={setGlobalBudget} budgetList={budgetList}/>
+      <GroupSelect groupStore={groupStore}/>
+      <NewCategoryPrompt onSave={handleCreateCategory} projectStore={projectStore} />
     </div>
 
 

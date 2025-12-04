@@ -10,20 +10,31 @@ import { ListGroups, CreateGroup } from "../../wailsjs/go/controllers/GroupContr
 import { models } from "../../wailsjs/go/models";
 import NewGroupPrompt from "../components/NewGroupPrompt";
 import ProjectSelect from "../components/ProjectSelect";
+import { useAppStore } from "../stores/useAppStore";
 
 interface GroupProps {
-  globalProject: models.Project;
-  setGlobalProject: (project: models.Project) => void;
-  projectList: models.Project[];
+  appStore: ReturnType<typeof useAppStore>;
 }
 
-const Groups: React.FC<GroupProps> = ({ globalProject, setGlobalProject, projectList }) => {
+const Groups: React.FC<GroupProps> = ({ appStore }) => {
+
+  const {
+    selectedProject: currentProject,
+    setSelectedProject: setProject,
+    projects: projects,
+
+    budgets: budgets,
+    selectedBudget: currentBudget,
+    setSelectedBudget: setBudget,
+
+  } = appStore;
+
   const [groups, setGroups] = useState<models.Group[]>([]);
 
   // Fetch groups from backend
   const fetchGroups = async () => {
     try {
-      const result = await ListGroups(globalProject.id);
+      const result = await ListGroups(currentProject?.id ?? 0);
       setGroups(result ?? []);
     } catch (err) {
       console.error("Failed to fetch groups:", err);
@@ -32,14 +43,14 @@ const Groups: React.FC<GroupProps> = ({ globalProject, setGlobalProject, project
 
   useEffect(() => {
     fetchGroups();
-  }, [globalProject]);
+  }, [currentProject]);
 
 
   const handleCreateGroup = async (name: string, description: string) => {
 
 
     try {
-      await CreateGroup(globalProject.id, name, description);
+      await CreateGroup(currentProject?.id ?? 0, name, description);
     } catch (err) {
       console.error("Failed to create group:", err);
     }

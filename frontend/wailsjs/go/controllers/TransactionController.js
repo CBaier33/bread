@@ -14,8 +14,8 @@ export function GetTransaction(arg1) {
   return window['go']['controllers']['TransactionController']['GetTransaction'](arg1);
 }
 
-export function ListTransactions(arg1, arg2, arg3) {
-  return window['go']['controllers']['TransactionController']['ListTransactions'](arg1, arg2, arg3);
+export function ListTransactions(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['controllers']['TransactionController']['ListTransactions'](arg1, arg2, arg3, arg4, arg5);
 }
 
 export function UpdateTransaction(arg1) {

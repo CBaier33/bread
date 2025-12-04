@@ -34,8 +34,8 @@ func (c *TransactionController) GetTransaction(id int64) (models.Transaction, er
 }
 
 // ListTransactions returns all transactions (optionally filtered by group or category)
-func (c *TransactionController) ListTransactions(projectID int64, groupID, categoryID *int64) ([]models.Transaction, error) {
-	return c.service.ListTransactions(projectID, groupID, categoryID)
+func (c *TransactionController) ListTransactions(projectID int64, groupID, categoryID *int64, startDate, endDate *string) ([]models.Transaction, error) {
+	return c.service.ListTransactions(projectID, groupID, categoryID, startDate, endDate)
 }
 
 // UpdateTransaction updates an existing transaction

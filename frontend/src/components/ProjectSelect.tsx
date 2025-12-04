@@ -4,7 +4,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 
 interface ProjectSelectProps {
-  globalProject: models.Project;
+  globalProject: models.Project | null;
   projectList: models.Project[];
   setGlobalProject: (project: models.Project) => void;
 }

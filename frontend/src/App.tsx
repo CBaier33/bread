@@ -11,67 +11,60 @@ import Categories from "./pages/Categories";
 import Home from "./pages/Home";
 import { ListGroups } from "../wailsjs/go/controllers/GroupController";
 import { ListBudgets } from "../wailsjs/go/controllers/BudgetController";
+import { useProjectStore } from "./stores/useProjectStore";
+import { useGroupStore } from "./stores/useGroupStore";
+import { useBudgetStore } from "./stores/useBudgetStore";
+import { useAppStore } from "./stores/useAppStore";
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<"home" | "projects" | "budgets" |  "groups" | "categories" | "analysis" |"transactions">("home");
 
-  const [projects, setProjects] = useState<models.Project[]>([]); 
-  const [globalProject, setGlobalProject] = useState<models.Project>(new models.Project({
-    id: 0, 
-    name: "Empty",
-    description: "Empty",
-    currency: "Empty",
+  const projectStore = useProjectStore();
+  const groupStore = useGroupStore(projectStore.selected.id);
+  const budgetStore = useBudgetStore(projectStore.selected.id);
+  const appStore = useAppStore();
+
+  const [nugget, setNugget] = useState<models.Budget>(new models.Budget({
+    id: 0,
+    description: "",
+    name: "Select Budget"
   }));
 
-  const [groups, setGroups] = useState<models.Group[]>([]); 
-  const [globalGroup, setGlobalGroup] = useState<models.Group>(new models.Group({
-    id: 0, 
-    description: "Empty",
-  }));
+  const [nuggets, setNuggets] = useState<models.Budget[]>([]);
 
-  const [budgets, setBudgets] = useState<models.Budget[]>([]); 
-  const [globalBudget, setGlobalBudget] = useState<models.Budget>(new models.Budget({
-    id: 0, 
-    description: "Empty",
-  }));
+  const fetchNuggets = async () => {
+    try {
+      const bgs = await ListBudgets(projectStore.selected.id);
+      setNuggets(bgs ?? []); // types now match
+      if (nugget.id === 0 && nuggets.length > 0) {
+        setNugget(nuggets[0]);
+      }
+        
+    } catch (err) {
+      console.error("Error fetching budgets:", err);
+  } finally {
+    }
+  };
 
   useEffect(() => {
-  fetchProjects();
-  if (projects.length > 0 && globalProject.id == 0) {
-    setGlobalProject(projects[0]);
-  };
-  fetchGroups();
-  if (groups.length > 0 && globalGroup.id == 0) {
-    setGlobalGroup(groups[0]);
-  }
-}, [projects, groups]);
+  projectStore.fetch();
 
-  const fetchProjects = async () => {
-    try {
-      const result = await ListProjects();
-      setProjects(result ?? []);
-    } catch (err) {
-      console.error("Failed to fetch projects:", err);
-    }
-  };
+}, []);
 
-  const fetchGroups = async () => {
-    try {
-      const result = await ListGroups(globalProject.id);
-      setGroups(result ?? []);
-    } catch (err) {
-      console.error("Failed to fetch projects:", err);
+  useEffect(() => {
+    if (projectStore.selected.id !== 0) {
+      fetchNuggets();
+      budgetStore.fetch();
     }
-  };
+  }, [projectStore.selected.id])
 
-  const fetchBudgets = async () => {
-    try {
-      const result = await ListBudgets(globalProject.id);
-      setBudgets(result ?? []);
-    } catch (err) {
-      console.error("Failed to fetch projects:", err);
-    }
-  };
+  //useEffect(() => {
+  //budgetStore.fetch();
+  //if (budgetStore.selected.id == 0) {
+  //  budgetStore.setSelected(budgetStore.items[0]);
+  //}
+  //groupStore.fetch();
+//},// [projectStore])
 
   return (
     <Theme>
@@ -182,16 +175,20 @@ const App: React.FC = () => {
       </nav>
       {/* Main content */}
       <main style={{ flex: 1, padding: "10px" }}>
-        {activeView === "transactions" && <Transactions globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projects}/>}
-        {activeView === "budgets" && <Budgets globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projects}/>}
+          {/*{activeView === "transactions" && <Transactions projectStore={projectStore} budgetStore={null}/>}
+          {activeView === "budgets" && <Budgets globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projects}/>}
         {activeView === "groups" && <Groups globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projects}/>}
         {activeView === "categories" && <Categories globalGroup={globalGroup} setGlobalGroup={setGlobalGroup} groupList={groups} globalBudget={globalBudget} setGlobalBudget={setGlobalBudget} budgetList={budgets} />}
         {activeView === "projects" && <Projects globalProject={globalProject} setGlobalProject={setGlobalProject} />}
-        {activeView === "analysis" && <Analysis />}
+        {activeView === "analysis" && <Analysis />}*/}
         {activeView === "home" && <Home 
-            globalProject={globalProject} setGlobalProject={setGlobalProject} projects={projects}
-            globalGroup={globalGroup} setGlobalGroup={setGlobalGroup} groupList={groups}
-            globalBudget={globalBudget} setGlobalBudget={setGlobalBudget} budgetList={budgets}
+            projectStore={projectStore}
+            groupStore={groupStore}
+            budgetStore={budgetStore}
+            nugget={nugget}
+            nuggets={nuggets}
+            setNugget={setNugget}
+            appStore={appStore}
           />}
       </main>
     </div>

@@ -2,23 +2,20 @@ import React from "react";
 import { models } from "../../wailsjs/go/models";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { GlobalStore } from "../hooks/useGlobalStore";
 
 interface GroupSelectProps {
-  globalGroup: models.Group;
-  groupList: models.Group[];
-  setGlobalGroup: (group: models.Group) => void;
+  groupStore: GlobalStore<models.Group>;
 }
 
 const GroupSelect: React.FC<GroupSelectProps> = ({
-  globalGroup,
-  groupList,
-  setGlobalGroup,
+  groupStore,
 }) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          {globalGroup?.name ?? "Select a group"}
+          {groupStore.selected.name ?? "Select a group"}
           <ChevronDownIcon className="h-4 w-4 opacity-70" />
         </button>
       </DropdownMenu.Trigger>
@@ -29,14 +26,14 @@ const GroupSelect: React.FC<GroupSelectProps> = ({
           className="min-w-[160px] rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
         >
           <DropdownMenu.RadioGroup
-            value={globalGroup?.name}
+            value={groupStore.selected.name}
             onValueChange={(name) => {
-              const proj = groupList.find((p) => p.name === name);
-              if (proj) setGlobalGroup(proj);
+              const proj = groupStore.items.find((p) => p.name === name);
+              if (proj) groupStore.setSelected(proj);
             }}
             className="flex flex-col gap-0.5"
           >
-            {groupList.map((group) => (
+            {groupStore.items.map((group) => (
               <DropdownMenu.RadioItem
                 key={group.name}
                 value={group.name}

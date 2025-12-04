@@ -1,43 +1,64 @@
 import { Flex } from "@radix-ui/themes";
 import React, { useEffect, useState } from "react";
+import { CreateBudget, ListBudgets } from "../../wailsjs/go/controllers/BudgetController";
 import { models } from "../../wailsjs/go/models";
+import BudgetSelect from "../components/BudgetSelect";
+import NewBudgetPrompt from "../components/NewBudgetPrompt";
 import ProjectSelect from "../components/ProjectSelect";
+import { GlobalStore } from "../hooks/useGlobalStore";
+import { useAppStore } from "../stores/useAppStore";
 import Categories from "./Categories";
 import Groups from "./Groups";
 import Projects from "./Projects";
 import Transactions from "./Transactions";
 
 interface HomeProps {
-  globalProject: models.Project;
-  setGlobalProject: (project: models.Project) => void;
-  projects: models.Project[];
-  globalGroup: models.Group;
-  setGlobalGroup: (group: models.Group) => void;
-  groupList: models.Group[];
-  globalBudget: models.Budget;
-  setGlobalBudget: (budget: models.Budget) => void;
-  budgetList: models.Budget[];
+  appStore: ReturnType<typeof useAppStore>;
 }
 
-const Home: React.FC<HomeProps> = (
-    { 
-      globalProject, setGlobalProject, projects,
-      globalGroup, setGlobalGroup, groupList,
-      globalBudget, setGlobalBudget, budgetList,
+const Home: React.FC<HomeProps> = ( { appStore, }) => {
+
+  const {
+    selectedProject: currentProject,
+    setSelectedProject: setProject,
+    projects: projects,
+
+    budgets: budgets,
+    selectedBudget: currentBudget,
+    setSelectedBudget: setBudget,
+
+    groups: groups,
+  } = appStore;
+
+  const handleCreateBudget = async (name: string, startDate: Date | undefined, endDate: Date | undefined, expectedIncome: number, startingBalance: number) => {
+
+    const newstart = startDate?.toISOString() ?? ""
+    const newend = endDate?.toISOString() ?? ""
+
+    console.log("newstart", newstart)
+    console.log("newend", newend)
+
+    try {
+      await CreateBudget(currentProject?.id ?? 0, name, newstart, newend, expectedIncome, startingBalance);
+    } catch (err) {
+      console.error("Failed to create budget:", err);
     }
-  ) => {
+
+  };
+
 
   return (
     <div className="p-5 h-[calc(100vh-4rem)]">
       <div className="flex items-center gap-2 justify-center mb-4">
-        <div className="flex w-full justify-start">
-          <h1 className="text-4xl font-bold">*Budget Name*</h1>
+        <div className="flex w-full justify-start items-center gap-2 ">
+          <BudgetSelect budget={currentBudget} setBudget={setBudget} budgets={budgets} />
+          <NewBudgetPrompt onSave={handleCreateBudget}/>
         </div>
         <div className="flex w-full justify-end">
           <ProjectSelect
-            globalProject={globalProject}
-            setGlobalProject={setGlobalProject}
-            projectList={projects}
+              globalProject={currentProject}
+              setGlobalProject={setProject}
+              projectList={projects}
           />
         </div>
       </div>
@@ -58,17 +79,13 @@ const Home: React.FC<HomeProps> = (
 
           <div className="flex-1 overflow-auto shadow-lg rounded-xl outline outline-zinc-200 gap-2 mt-2 p-2">
             <Groups
-              globalProject={globalProject}
-              setGlobalProject={setGlobalProject}
-              projectList={projects}
+              appStore={appStore}
             />
           </div>
         </div>
         <div className="h-full overflow-auto shadow-lg rounded-xl outline outline-zinc-200 gap-2 p-0">
           <Transactions
-            globalProject={globalProject}
-            setGlobalProject={setGlobalProject}
-            projectList={projects}
+            appStore={appStore}
           />
         </div>
       </div>

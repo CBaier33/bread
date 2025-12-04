@@ -45,8 +45,8 @@ func (s *TransactionService) GetTransaction(id int64) (models.Transaction, error
 }
 
 // ListTransactions returns all transactions optionally filtered by categoryID
-func (s *TransactionService) ListTransactions(projectID int64, groupID, categoryID *int64) ([]models.Transaction, error) {
-	result, err := persistence.ListTransactions(projectID, groupID, categoryID, nil)
+func (s *TransactionService) ListTransactions(projectID int64, groupID, categoryID *int64, startDate, endDate *string) ([]models.Transaction, error) {
+	result, err := persistence.ListTransactions(projectID, groupID, categoryID, startDate, endDate, nil)
 	if err != nil {
 		return nil, fmt.Errorf("ListTransactions: %w", err)
 	}
