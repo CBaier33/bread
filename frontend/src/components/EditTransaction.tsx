@@ -45,7 +45,7 @@ const EditTransaction: React.FC<EditTransactionProps> = ({ open, onOpenChange, t
       description, 
       amount, 
       expense_type: expenseType, 
-      date: (date ?? new Date()).toLocaleDateString(),
+      date: (date ?? new Date()).toISOString(),
       category_id: category.id,
       notes: notes, 
     });

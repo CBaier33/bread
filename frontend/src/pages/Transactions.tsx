@@ -91,6 +91,7 @@ const handleCreateTransaction = async (
     setAmount(0);
 
     fetchTransactions();
+    appStore.refresh();
   } catch (err) {
     console.error("Error adding transaction:", err);
   }
@@ -102,6 +103,7 @@ const handleCreateTransaction = async (
     try {
       await UpdateTransaction(transaction);
       await fetchTransactions();
+      appStore.refresh();
     } catch (err) {
       console.error("Failed to create transaction:", err);
     }
@@ -111,6 +113,7 @@ const handleCreateTransaction = async (
     try {
       await DeleteTransaction(transaction.id);
       await fetchTransactions();
+      appStore.refresh();
     } catch (err) {
       console.error("Failed to create transaction:", err);
     }
@@ -119,28 +122,35 @@ const handleCreateTransaction = async (
   if (loading) return <div>Loading transactions...</div>;
 
 
-  return (
-    <div className="p-5 h-full flex flex-col">
-      <div className="mb-4 flex gap-2 justify-between items-center">
-        <h1 className="text-2xl font-bold">Transactions</h1>
-        <NewTransactionPrompt onSave={handleCreateTransaction} globalCategory={globalCategory} setGlobalCategory={setGlobalCategory} categoryList={categories} />
+return (
+  <div className="h-full w-full flex flex-col p-4 gap-4 overflow-hidden">
+    <div className="flex items-center justify-between gap-3 shrink-0">
+      <h1 className="text-xl sm:text-2xl font-bold truncate">Transactions</h1>
+      <div className="shrink-0">
+        <NewTransactionPrompt
+          onSave={handleCreateTransaction}
+          globalCategory={globalCategory}
+          setGlobalCategory={setGlobalCategory}
+          categoryList={categories}
+        />
       </div>
+    </div>
 
-      {/* This is the scrollable list */}
-      <div className="flex-1 overflow-auto p-2">
-        {transactions.map((t) => (
-          <TransactionCard 
-            key={t.id} 
-            transaction={t} 
-            width="" 
+    <div className="flex flex-col gap-3 w-full overflow-hidden">
+      {transactions.map((t) => (
+        <div key={t.id} className="w-full">
+          <TransactionCard
+            transaction={t}
+            width=""                
             onEdit={handleEditTransaction}
             onDelete={handleDeleteTransaction}
             categoryList={categories}
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
-  );
+  </div>
+);
 };
 
 export default Transactions;

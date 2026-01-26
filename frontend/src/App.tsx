@@ -19,52 +19,7 @@ import { useAppStore } from "./stores/useAppStore";
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<"home" | "projects" | "budgets" |  "groups" | "categories" | "analysis" |"transactions">("home");
 
-  const projectStore = useProjectStore();
-  const groupStore = useGroupStore(projectStore.selected.id);
-  const budgetStore = useBudgetStore(projectStore.selected.id);
   const appStore = useAppStore();
-
-  const [nugget, setNugget] = useState<models.Budget>(new models.Budget({
-    id: 0,
-    description: "",
-    name: "Select Budget"
-  }));
-
-  const [nuggets, setNuggets] = useState<models.Budget[]>([]);
-
-  const fetchNuggets = async () => {
-    try {
-      const bgs = await ListBudgets(projectStore.selected.id);
-      setNuggets(bgs ?? []); // types now match
-      if (nugget.id === 0 && nuggets.length > 0) {
-        setNugget(nuggets[0]);
-      }
-        
-    } catch (err) {
-      console.error("Error fetching budgets:", err);
-  } finally {
-    }
-  };
-
-  useEffect(() => {
-  projectStore.fetch();
-
-}, []);
-
-  useEffect(() => {
-    if (projectStore.selected.id !== 0) {
-      fetchNuggets();
-      budgetStore.fetch();
-    }
-  }, [projectStore.selected.id])
-
-  //useEffect(() => {
-  //budgetStore.fetch();
-  //if (budgetStore.selected.id == 0) {
-  //  budgetStore.setSelected(budgetStore.items[0]);
-  //}
-  //groupStore.fetch();
-//},// [projectStore])
 
   return (
     <Theme>
@@ -181,15 +136,7 @@ const App: React.FC = () => {
         {activeView === "categories" && <Categories globalGroup={globalGroup} setGlobalGroup={setGlobalGroup} groupList={groups} globalBudget={globalBudget} setGlobalBudget={setGlobalBudget} budgetList={budgets} />}
         {activeView === "projects" && <Projects globalProject={globalProject} setGlobalProject={setGlobalProject} />}
         {activeView === "analysis" && <Analysis />}*/}
-        {activeView === "home" && <Home 
-            projectStore={projectStore}
-            groupStore={groupStore}
-            budgetStore={budgetStore}
-            nugget={nugget}
-            nuggets={nuggets}
-            setNugget={setNugget}
-            appStore={appStore}
-          />}
+        {activeView === "home" && <Home appStore={appStore} />}
       </main>
     </div>
     </Theme>

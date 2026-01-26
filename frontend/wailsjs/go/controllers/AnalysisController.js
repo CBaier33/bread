@@ -6,6 +6,10 @@ export function AllocationCost(arg1, arg2) {
   return window['go']['controllers']['AnalysisController']['AllocationCost'](arg1, arg2);
 }
 
+export function BudgetBalance(arg1) {
+  return window['go']['controllers']['AnalysisController']['BudgetBalance'](arg1);
+}
+
 export function BudgetProjectedCost(arg1) {
   return window['go']['controllers']['AnalysisController']['BudgetProjectedCost'](arg1);
 }

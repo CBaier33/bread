@@ -38,14 +38,48 @@ func BudgetActualCost(budgetID int64, db runner) (int64, error) {
 	err = db.QueryRow(`
 		SELECT COALESCE(SUM(amount), 0)
 		FROM transactions
-		WHERE date BETWEEN ? AND ?; 
-		`, budget.PeriodStart, budget.PeriodEnd).Scan(&total)
+		WHERE date BETWEEN ? AND ? 
+		AND expense_type = 1
+		AND project_id = ?
+		`, budget.PeriodStart, budget.PeriodEnd, budget.ProjectID).Scan(&total)
 
 	if err != nil {
 		return 0, err
 	}
 
 	return total, nil
+}
+
+func BudgetBalance(budgetID int64, db runner) (int64, error) {
+
+	if db == nil {
+		db = DB
+	}
+
+	budget, err := GetBudget(budgetID, db)
+	
+	if err != nil {
+		return 0, err
+	}
+
+	var total int64
+
+	err = db.QueryRow(`
+		SELECT COALESCE(SUM(
+			CASE 
+				WHEN expense_type = 1 THEN -amount
+			ELSE amount
+			END), 0)
+		FROM transactions
+		WHERE "date" BETWEEN ? AND ?
+		AND project_id = ?
+		`, budget.PeriodStart, budget.PeriodEnd, budget.ProjectID).Scan(&total)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total + budget.StartingBalance, nil
 }
 
 func AllocationCost(budgetID int64, categoryID *int64, db runner) (int64, error) {
@@ -94,3 +128,4 @@ func AllocationCost(budgetID int64, categoryID *int64, db runner) (int64, error)
 	return total, nil
 	
 }
+

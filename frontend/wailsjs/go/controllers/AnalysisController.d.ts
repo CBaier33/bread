@@ -3,6 +3,8 @@
 
 export function AllocationCost(arg1:number,arg2:number):Promise<number>;
 
+export function BudgetBalance(arg1:number):Promise<number>;
+
 export function BudgetProjectedCost(arg1:number):Promise<number>;
 
 export function BudgetTotalCost(arg1:number):Promise<number>;

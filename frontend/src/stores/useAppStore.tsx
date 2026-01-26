@@ -14,6 +14,23 @@ export function useAppStore() {
   const [selectedBudget, setSelectedBudget] = useState<models.Budget | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<models.Group | null>(null);
 
+  const refresh = async () => {
+    const result = await ListProjects();
+    const safe = result ?? [];
+
+    setProjects(safe);
+
+    if (safe.length > 0) {
+      setSelectedProject(safe[0]);
+      refreshBudgets(safe[0].id);
+      refreshGroups(safe[0].id);
+    } else {
+      setSelectedProject(null);
+    }
+
+    
+  }
+
   const refreshProjects = async () => {
     const result = await ListProjects();
     const safe = result ?? [];
@@ -21,7 +38,7 @@ export function useAppStore() {
     setProjects(safe);
 
     if (safe.length > 0) {
-      setSelectedProject((prev) => prev ?? safe[0]);
+      setSelectedProject(safe[0]);
     } else {
       setSelectedProject(null);
     }
@@ -34,7 +51,7 @@ export function useAppStore() {
     setBudgets(safe);
 
     if (safe.length > 0) {
-      setSelectedBudget((prev) => prev ?? safe[0]);
+      setSelectedBudget(safe[0]);
     } else {
       setSelectedBudget(null);
     }
@@ -47,7 +64,7 @@ export function useAppStore() {
     setGroups(safe);
 
     if (safe.length > 0) {
-      setSelectedGroup((prev) => prev ?? safe[0]);
+      setSelectedGroup(safe[0]);
     } else {
       setSelectedGroup(null);
     }
@@ -81,6 +98,7 @@ export function useAppStore() {
     setSelectedGroup,
 
     // refreshers
+    refresh,
     refreshProjects,
     refreshBudgets,
     refreshGroups,

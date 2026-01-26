@@ -24,6 +24,10 @@ func (c *AnalysisController) BudgetTotalCost(budgetID int64) (int64, error) {
 	return c.service.BudgetTotalCost(budgetID)
 }
 
+func (c *AnalysisController) BudgetBalance(budgetID int64) (int64, error) {
+	return c.service.BudgetBalance(budgetID)
+}
+
 // AllocationCost returns the actual cost for a specific allocation
 func (c *AnalysisController) AllocationCost(budgetID, categoryID int64) (int64, error) {
 	return c.service.AllocationCost(budgetID, categoryID)

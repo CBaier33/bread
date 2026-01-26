@@ -76,37 +76,49 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, width, o
 
        {/* Modals rendered outside the dropdown */}
       </div>
-      <div className="flex flex-row gap-1 flex-col justify-start ">
-        <div
-          className={`
-            inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold
-            ${transaction.expense_type === true
-              ? "text-red-600 bg-red-100"
-              : "text-green-600 bg-green-100"
-                }
-              `}
-            >
-          ${(transaction.amount / 100).toFixed(2)}
-        </div>
-        <div className="flex flex-row justify-center gap-2">
-          <div
-            className="
-              inline-flex w-full items-center justify-center px-3 py-1 rounded-full text-[10px] font-semibold
-              bg-violet-100 text-violet-700
-            "
-            >
-            {transaction.category_name}
-          </div>
-          <div
-            className="
-              inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-semibold
-              bg-blue-100 text-blue-700
-            "
-            >
-            {dayjs(transaction.date).format("MM/DD/YYYY")}
-          </div>
-        </div>
-      </div>
+<div className="grid grid-cols-1 gap-2 w-full max-w-xs">
+
+  {/* PRICE → always full width on top */}
+  <div
+    className={`
+      inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold
+      ${transaction.expense_type === true
+        ? "text-red-600 bg-red-100"
+        : "text-green-600 bg-green-100"
+      }
+    `}
+  >
+    ${(transaction.amount / 100).toFixed(2)}
+  </div>
+
+  {/* BOTTOM LAYER → responsive grid */}
+  <div className="grid lg:grid-cols-2 sm:grid-cols-1 gap-2 w-full">
+    
+    {/* CATEGORY */}
+    <div
+      className="
+        inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-semibold
+        bg-violet-100 text-violet-700
+        w-full
+      "
+    >
+      {transaction.category_name}
+    </div>
+
+    {/* DATE */}
+    <div
+      className="
+        inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-semibold
+        bg-blue-100 text-blue-700
+        w-full
+      "
+    >
+      {dayjs(transaction.date).format("MM/DD/YYYY")}
+    </div>
+
+  </div>
+
+</div>
     </div>
   );
 };

@@ -10,21 +10,28 @@ import { ListBudgets, CreateBudget } from "../../wailsjs/go/controllers/BudgetCo
 import { models } from "../../wailsjs/go/models";
 import NewBudgetPrompt from "../components/NewBudgetPrompt";
 import ProjectSelect from "../components/ProjectSelect";
+import { useAppStore } from "../stores/useAppStore";
 
 interface BudgetProps {
-  globalProject: models.Project;
-  setGlobalProject: (project: models.Project) => void;
-  projectList: models.Project[];
+  appStore: ReturnType<typeof useAppStore>;
 }
 
-const Budgets: React.FC<BudgetProps> = ({ globalProject, setGlobalProject, projectList }) => {
+const Budgets: React.FC<BudgetProps> = ({ appStore }) => {
   const [budgets, setBudgets] = useState<models.Budget[]>([]);
   const [name, setName] = useState("");
+
+  const {
+    selectedProject: currentProject,
+    setSelectedProject: setProject,
+    projects: projects,
+
+    selectedBudget: currentBudget,
+  } = appStore;
 
   // Fetch budgets from backend
   const fetchBudgets = async () => {
     try {
-      const result = await ListBudgets(globalProject.id);
+      const result = await ListBudgets(currentProject?.id ?? 0);
       setBudgets(result ?? []);
     } catch (err) {
       console.error("Failed to fetch budgets:", err);
@@ -33,7 +40,7 @@ const Budgets: React.FC<BudgetProps> = ({ globalProject, setGlobalProject, proje
 
   useEffect(() => {
     fetchBudgets();
-  }, [globalProject]);
+  }, [currentProject]);
 
 
   const handleCreateBudget = async (name: string, startDate: Date | undefined, endDate: Date | undefined, expectedIncome: number, startingBalance: number) => {
@@ -45,7 +52,7 @@ const Budgets: React.FC<BudgetProps> = ({ globalProject, setGlobalProject, proje
     console.log("newend", newend)
 
     try {
-      await CreateBudget(globalProject.id, name, newstart, newend, expectedIncome, startingBalance);
+      await CreateBudget(currentProject?.id ?? 0, name, newstart, newend, expectedIncome, startingBalance);
     } catch (err) {
       console.error("Failed to create budget:", err);
     }
@@ -61,11 +68,9 @@ const Budgets: React.FC<BudgetProps> = ({ globalProject, setGlobalProject, proje
     <div className="p-5"> 
       <div className="mb-4 flex gap-2 items-center w-full">
       <h1 className="text-4xl font-bold">Budgets</h1>
-      <ProjectSelect globalProject={globalProject} setGlobalProject={setGlobalProject} projectList={projectList}/>
+      <ProjectSelect appStore={appStore}/>
       <NewBudgetPrompt onSave={handleCreateBudget}/>
     </div>
-
-
 
       {/* Budget List */}
       <ul className="mb-6">

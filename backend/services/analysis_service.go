@@ -22,6 +22,15 @@ func (s *AnalysisService) BudgetTotalCost(budgetID int64) (int64, error) {
 	return cost, err
 }
 
+func (s *AnalysisService) BudgetBalance(budgetID int64) (int64, error) {
+	balance, err := persistence.BudgetBalance(budgetID, nil)
+	if err != nil {
+		return 0, err
+	}
+	return balance, err
+}
+
+
 func (s *AnalysisService) AllocationCost(budgetID int64, categoryID int64) (int64, error) {
 	cost, err := persistence.AllocationCost(budgetID, &categoryID, nil)
 	if err != nil {

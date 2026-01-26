@@ -5,13 +5,16 @@ import "react-day-picker/dist/style.css";
 import { models } from "../../wailsjs/go/models";
 import BudgetSelect from "./BudgetSelect";
 import { GlobalStore } from "../hooks/useGlobalStore";
+import { useAppStore } from "../stores/useAppStore";
+import { CreateCategory } from "../../wailsjs/go/controllers/CategoryController";
+import { AddAllocation } from "../../wailsjs/go/controllers/BudgetController";
 
 interface NewCategoryPromptProps {
-  onSave: (name: string, description: string, expenseType: boolean, expected: number) => Promise<void> | void;
-  projectStore: GlobalStore<models.Project>;
+  group: models.Group;
+  appStore: ReturnType<typeof useAppStore>;
 }
 
-const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ onSave, projectStore }) => {
+const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ group, appStore }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [expenseType, setExpenseType] = useState(true);
@@ -19,10 +22,13 @@ const NewCategoryPrompt: React.FC<NewCategoryPromptProps> = ({ onSave, projectSt
   const [displayAmount, setDisplayAmount] = useState((0 / 100).toFixed(2));
 
   const handleCreateCategory = async () => {
-    await onSave(name, description, expenseType, amount);
+    var cat = await CreateCategory(group.id, name, description, expenseType);
+    await AddAllocation(appStore.selectedBudget?.id ?? 0, cat.id, amount )
     setDescription("");
+    setName("")
     setAmount(0);
     setDisplayAmount((0 / 100).toFixed(2))
+    appStore.refreshProjects()
   };
 
   const handleAmount = async (value: string) => {

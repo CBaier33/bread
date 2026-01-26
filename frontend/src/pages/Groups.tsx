@@ -11,6 +11,7 @@ import { models } from "../../wailsjs/go/models";
 import NewGroupPrompt from "../components/NewGroupPrompt";
 import ProjectSelect from "../components/ProjectSelect";
 import { useAppStore } from "../stores/useAppStore";
+import GroupCard from "../components/GroupCard";
 
 interface GroupProps {
   appStore: ReturnType<typeof useAppStore>;
@@ -66,11 +67,9 @@ const Groups: React.FC<GroupProps> = ({ appStore }) => {
     </div>
 
       {/* Group List */}
-      <ul className="mb-6">
+      <ul className="mb-6 gap-2 flex flex-col">
         {groups.map((b) => (
-          <li key={b.id} className="mb-2 p-2 border rounded">
-            <strong>{b.name}</strong> - {b.description}
-          </li>
+          <GroupCard group={b} appStore={appStore}/>
         ))}
       </ul>
       

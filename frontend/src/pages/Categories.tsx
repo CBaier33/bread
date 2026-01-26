@@ -11,14 +11,16 @@ import { models } from "../../wailsjs/go/models";
 import NewCategoryPrompt from "../components/NewCategoryPrompt";
 import GroupSelect from "../components/GroupSelect";
 import { GlobalStore } from "../hooks/useGlobalStore";
+import { useAppStore } from "../stores/useAppStore";
 
 interface CategoryProps {
   groupStore: GlobalStore<models.Group>;
   projectStore: GlobalStore<models.Project>;
+  appStore: ReturnType<typeof useAppStore>;
    
 }
 
-const Categories: React.FC<CategoryProps> = ({ groupStore, projectStore }) => {
+const Categories: React.FC<CategoryProps> = ({ groupStore, projectStore, appStore }) => {
   const [budgets, setCategories] = useState<models.Category[]>([]);
   const [name, setName] = useState("");
 
@@ -57,7 +59,7 @@ const Categories: React.FC<CategoryProps> = ({ groupStore, projectStore }) => {
       <div className="mb-4 flex gap-2 items-center w-full">
       <h1 className="text-4xl font-bold">Categories</h1>
       <GroupSelect groupStore={groupStore}/>
-      <NewCategoryPrompt onSave={handleCreateCategory} projectStore={projectStore} />
+      <NewCategoryPrompt appStore={appStore} group={groupStore.selected}/>
     </div>
 
 

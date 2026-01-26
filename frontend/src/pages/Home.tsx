@@ -1,7 +1,10 @@
 import { Flex } from "@radix-ui/themes";
 import React, { useEffect, useState } from "react";
+import { BudgetBalance } from "../../wailsjs/go/controllers/AnalysisController";
 import { CreateBudget, ListBudgets } from "../../wailsjs/go/controllers/BudgetController";
 import { models } from "../../wailsjs/go/models";
+import BudgetBalanceDisplay from "../components/BudgetBalanceDisplay";
+import BudgetCostDisplay from "../components/BudgetCostDisplay";
 import BudgetSelect from "../components/BudgetSelect";
 import NewBudgetPrompt from "../components/NewBudgetPrompt";
 import ProjectSelect from "../components/ProjectSelect";
@@ -35,9 +38,6 @@ const Home: React.FC<HomeProps> = ( { appStore, }) => {
     const newstart = startDate?.toISOString() ?? ""
     const newend = endDate?.toISOString() ?? ""
 
-    console.log("newstart", newstart)
-    console.log("newend", newend)
-
     try {
       await CreateBudget(currentProject?.id ?? 0, name, newstart, newend, expectedIncome, startingBalance);
     } catch (err) {
@@ -51,15 +51,11 @@ const Home: React.FC<HomeProps> = ( { appStore, }) => {
     <div className="p-5 h-[calc(100vh-4rem)]">
       <div className="flex items-center gap-2 justify-center mb-4">
         <div className="flex w-full justify-start items-center gap-2 ">
-          <BudgetSelect budget={currentBudget} setBudget={setBudget} budgets={budgets} />
+          <BudgetSelect appStore={appStore}/>
           <NewBudgetPrompt onSave={handleCreateBudget}/>
         </div>
         <div className="flex w-full justify-end">
-          <ProjectSelect
-              globalProject={currentProject}
-              setGlobalProject={setProject}
-              projectList={projects}
-          />
+          <ProjectSelect appStore={appStore} />
         </div>
       </div>
 
@@ -67,10 +63,10 @@ const Home: React.FC<HomeProps> = ( { appStore, }) => {
         <div className="w-full flex flex-col col-span-3 gap-2">
           <div className="grid grid-cols-3 gap-1 ">
             <div className="flex shadow-lg rounded-xl outline outline-zinc-200 justify-center">
-              <h1 className="text-3xl font-bold">*Balance*</h1>
+              <BudgetBalanceDisplay appStore={appStore} />
             </div>
             <div className="flex shadow-lg rounded-xl outline outline-zinc-200 justify-center">
-              <h1 className="text-3xl text-red font-bold">*Cost*</h1>
+              <BudgetCostDisplay appStore={appStore}/>
             </div>
             <div className="flex shadow-lg rounded-xl outline outline-zinc-200 justify-center">
               <h1 className="text-3xl font-bold">*Allocations*</h1>

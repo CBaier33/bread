@@ -32,7 +32,7 @@ func InsertTransaction(t models.Transaction, db runner) (int64, error) {
 	return res.LastInsertId()
 }
 
-// GetTransactions returns all transactions
+// ListTransactions returns all transactions
 func ListTransactions(projectID int64, groupID, categoryID *int64, startDate, endDate *string, db runner) ([]models.Transaction, error) {
 	if db == nil {
 		db = DB

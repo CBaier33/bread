@@ -4,18 +4,20 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { GlobalStore } from "../hooks/useGlobalStore";
 import { ListBudgets } from "../../wailsjs/go/controllers/BudgetController";
+import { useAppStore } from "../stores/useAppStore";
 
 interface BudgetSelectProps {
-  budget: models.Budget | null;
-  budgets: models.Budget[];
-  setBudget: (budget: models.Budget) => void; 
+  appStore: ReturnType<typeof useAppStore>;
 }
 
-const BudgetSelect: React.FC<BudgetSelectProps> = ({
-  budget,
-  budgets,
-  setBudget,
-}) => {
+const BudgetSelect: React.FC<BudgetSelectProps> = ({ appStore, }) => {
+
+
+  const {
+    selectedBudget: budget,
+    budgets: budgets,
+    setSelectedBudget: setBudget,
+  } = appStore;
 
   return (
     <DropdownMenu.Root>
@@ -39,7 +41,7 @@ const BudgetSelect: React.FC<BudgetSelectProps> = ({
             }}
             className="flex flex-col gap-0.5"
           >
-            {budgets.map((b) => (
+            {budgets?.map((b) => (
               <DropdownMenu.RadioItem
                 key={b.name}
                 value={b.name}
